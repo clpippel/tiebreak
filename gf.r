@@ -303,8 +303,10 @@ qg <- make_quotient_graph(g, SCC$membership, title="SCCs in games")
 dev.new()                                           # comment out for rextester.com
 wts <- edge_attr(qg)$weight                         # weight = points by edge
 wts[wts == 1] <- NA                                 # remove one game, improve readability
-lyt <- layout_with_sugiyama(qg, hgap = 1, vgap = 1)$layout
+
+# lyt <- layout_with_sugiyama(qg, hgap = 1, vgap = 1)$layout
 # if (vcount(qg) == 1) dim(lyt) <- c(1, 2)          # corrected ih rigraph
+lyt <- layout_with_sugiyama
 
 qg <- set_graph_attr( qg, name="main"
                    , value=ifelse(vcount(qg) == 1, "Graph is strongly connected", paste(qg$name, "Sugiyama layers:", sep=", "))
