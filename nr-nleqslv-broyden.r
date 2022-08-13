@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------------
 # nr-nleqslv.r
-# Solving systems of nonlinear equations with Broyden or Newton
+# Solving systems of nonlinear equations with Broyden
 # https://cran.r-project.org/web/packages/nleqslv/nleqslv.pdf
 # calculate relative ratings (x) as roots of We(x) - W = 0
 # ---------------------------------------------------------------------
@@ -68,13 +68,14 @@ sol <- nleqslv (
                 )
 )
 #---------------------------------------------------------------------
-rrtg_sol <- cbind(sol$x) + mask_rtg
+rrtg_sol <- head(cbind(sol$x), -1) + mask_rtg        # remove sum and mask main SCC
 print(zapsmall(rrtg_sol, digits=4))                  # relative rating broyden
 
 uz   <- exp(rrtg_sol / 400 * log(10))                # Spielstärken, Zermelo, p. 451
 uz[] <- uz / sum(uz)                                 # genormeerd op som = 1
 
 print(sol)
+print(rrtg_sol)
 cat(sprintf("Stdev f$vec = %5.2g\n\n"  , sd(sol$fvec) ) )
 print(stime)
 
