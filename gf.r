@@ -196,7 +196,7 @@ if (FMJD %in% TRUE) {                               # FMJD, 10x10 draughts, form
 }
 oppNOK <- !is.na(opponents) & (opponents > npls | opponents < 1) # quick test: negative or to big and not NA
 
-if (any(oppNOK) {
+if (any(oppNOK)) {
   print(ifelse(!oppNOK, ".", opponents), quote = FALSE)
   stop("Opponent(s) out of range")
 }
@@ -312,10 +312,6 @@ qg <- set_graph_attr( qg, name="layout", value=lyt)
 qg <- set_edge_attr(qg, name="label", value=wts)    # show numner of games
 qg <- set_vertex_attr(qg, name="V(qg)$label.cex", value=.8) # font size
 plot(qg)
-{
-   print("Sugiyama layers:")
-   print(cbind(V(qg)$name, lyt[,2]))                # show vertex x layer
-}
 
 # ---------------------------------------------------------------------------------------
 # compute layers, shortest paths with negative weights (bellman-ford)
