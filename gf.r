@@ -3,6 +3,8 @@
 # - Een goede reiziger weet niet waar hij naar toe gaat.
 # - Een uitsteken reiziger weet niet waar hij vandaan komt.
 #
+#   2022-aug-14, SCC, make_cluster
+#
 #   CSV, Comma Separated Values (RFC 4180)
 #   remove manually "=" from ="0" (excel)
 # - read and validate gamefile from Chess-Results, Sevilla / FMJD format into:
@@ -62,7 +64,7 @@
 # 
 # edit D:\Program Files\R\R-3.6.1\etc\Rprofile.site to set default directory to \Work
 # https://stackoverflow.com/questions/22432344/how-do-you-change-the-default-directory-in-rstudio-or-r
-# setwd("d:\\Users\\clpip\\Documents\\Work")
+# setwd("d:\\Users\\username\\Documents\\Work")
 # clear workspace (ctrl L), attach library and set working directory
 # install.packages('igraph')
 #
@@ -276,10 +278,9 @@ g <- set_vertex_attr(g, name="name", value=paste(seq_len(vcount(g)), sep="") )
 g <- add_edges(g, as.vector(t(elist[,1:2])), weight=elist[,3]) # add results (draw, wins)
 
 # partition graph into strongly connected components -------
-SCC <- components(g, mode="strong")
+SCC    <- make_clusters(g, components(g, mode="strong")$membership)
+SCC$no <- length(SCC)
 largest_SCC <- which.max(table(SCC$membership))     # most populated SCC (main)
-SCC <- c(SCC, list(groups=split(V(g), SCC$membership))) # list of partitions
-#SCC <- c(SCC, groups(SCC) )                         # add ist of partitions
 
 g <- set_graph_attr( g, name="main"
                    , value=paste("Players =", npls, ", Games = ", sum(wins,draws, losses)/2, ", SCCs =", SCC$no)
@@ -291,12 +292,8 @@ g <- set_vertex_attr(g, name="color", value=rainbow(SCC$no, alpha = 0.7)[SCC$mem
 # Add colours and use the mark.group argument
 if (ecount(g) < 1E6){
   dev.new()
-  system.time(try(
-  plot(g, mark.groups = SCC$groups
-        , y.flip=FALSE
-      )
-  ,silent=FALSE) )
-}
+  system.time(plot(g, mark.groups = groups(SCC)))
+  }
 qg <- make_quotient_graph(g, SCC$membership, title="SCCs in games")
 
 # layered layout, sugiyama -------------------------
