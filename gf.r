@@ -4,6 +4,7 @@
 # - Een uitsteken reiziger weet niet waar hij vandaan komt.
 #
 #   2022-aug-14, SCC, make_cluster
+#   2022-aug-14, handling of nonexisting opponents improved
 #
 #   CSV, Comma Separated Values (RFC 4180)
 #   remove manually "=" from ="0" (excel)
@@ -193,11 +194,10 @@ if (FMJD %in% TRUE) {                               # FMJD, 10x10 draughts, form
   opponents <- structure(as.integer(substr(rdm, 1, sbs - 1)), dim=dim(rdm), dimnames=dimnames(rdm)) # force matrix
   res_sym   <- substr(rdm, sbs + 1, nchar(rdm))     # symmetric representation
 }
-oppNOK <- (opponents > npls | opponents < 1)        # quick test: negative or to big
-}
-if (any(oppNOK, na.rm=TRUE) ) {
-  print(ifelse(oppNOK == 0, ".", opponnents), quote = FALSE)
-  # grep(" ", rdm)                                  # try two games in one round
+oppNOK <- !is.na(opponents) & (opponents > npls | opponents < 1) # quick test: negative or to big and not NA
+
+if (any(oppNOK) {
+  print(ifelse(!oppNOK, ".", opponents), quote = FALSE)
   stop("Opponent(s) out of range")
 }
 
