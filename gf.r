@@ -1,10 +1,12 @@
-# gf.r (copyleft clp, IJmuiden, 2021)
+# gf.r 
+# Unlicense (Ø) 2021 CLP, IJmuiden
 # Hieke Hylkema (Lin Yutan):
 # - Een goede reiziger weet niet waar hij naar toe gaat.
-# - Een uitsteken reiziger weet niet waar hij vandaan komt.
+# - Een uitstekende reiziger weet niet waar hij vandaan komt.
 #
 #   2022-aug-14, SCC, make_cluster
 #   2022-aug-14, handling of nonexisting opponents improved
+#   2023-jan-10, calculation of Par corrected
 #
 #   CSV, Comma Separated Values (RFC 4180)
 #   remove manually "=" from ="0" (excel)
@@ -68,7 +70,11 @@
 # setwd("d:\\Users\\username\\Documents\\Work")
 # clear workspace (ctrl L), attach library and set working directory
 # install.packages('igraph')
-#
+# lsf.str("package:base")        # Apply lsf.str function
+# ls("package:igraph")           # Apply lsf.str function
+# installed.packages()           # List ...
+# remove.packages(pkgs, lib)     # remove package
+# 
 
 cat(rm(list = ls()))                                # remove all objects
 if (!require(igraph)) q()                           # install.packages("igraph") or use menu
@@ -121,7 +127,7 @@ contract.vertices(membership, vertex.attr.comb =
                               list(category="first"
                                   , color="first"
                                   , name=function(x) paste(x[seq_len(min(2, length(x)))], collapse="/")
-                                  ) 
+                                  )
                  ) %>%
 simplify(edge.attr.comb="sum", remove.loops = F)  %>%  # combine multiple edges
 set_graph_attr("name", title) %>%                      # add title to graph
@@ -160,8 +166,8 @@ rdtable <- rdtable[-as.vector(seq_len(trow)),]      # remove header rows, if any
 rownames(rdtable) <- c()                            # remove rownames
 
 npls = nrow(rdtable); names(npls) <- "Number of players"; npls # number of players
-stopifnot(!is.null(npls) && (npls > 1) %in% TRUE)   # non trivial                  
-
+stopifnot(isTRUE(npls > 0) )                        # non trivial
+                 
 FMJD <- max(regexpr("*FMJD-report", gfheader)) > 0L # FMJD report style
 
 # columns to remove. Keep: R*10*, .*10*  | 10*..., where * is any sequence
@@ -183,7 +189,7 @@ halfch <- intToUtf8(0x00BD)                         # ½, indifferent to latin1,
 # regex pattern: lookback = digit, split = color, lookahead = result character
 # pt1 = "(?<=[0-9])[wbshax][1½0]"                   # pattern for chess
 # pt1 = "[/]"                                       # pattern for FMJD
-if (FMJD %in% TRUE) {                               # FMJD, 10x10 draughts, format 2/14, NA
+if (isTRUE(FMJD)) {                                 # FMJD, 10x10 draughts, format 2/14, NA
   pt1 <- "/"
   sbs <- regexpr(pt1, rdm, perl=TRUE)               # index of the result character
   opponents <- structure(as.integer(substr(rdm, sbs+1, nchar(rdm)-1)), dim=dim(rdm), dimnames=dimnames(rdm)) # force matrix
@@ -234,6 +240,9 @@ raticol <- which(regexpr("^([Rr]a?ti?n?g$|FMJD|APRO)$", trimws(names(rdtable))) 
 aor <- rowMeans(matrix(as.numeric(rdtable[,raticol][opponents]), nrow(rdtable)), na.rm=TRUE) #average opponent rtg
 
 results <- (gfile - t.sparse(gfile, opponents)) / 2 # skew symmetric results
+Par     <- max(gfile + t.sparse(gfile, opponents), na.rm=TRUE); # max score range
+names(Par) = "Maximal win score (1=chess, 2=draughts, 3 = football)"; Par
+
 wins   = matrix(rowSums(results >  0, na.rm = TRUE))# number of wins
 draws  = matrix(rowSums(results == 0, na.rm = TRUE))# number of draws
 losses = matrix(rowSums(results <  0, na.rm = TRUE))# number of losses
@@ -244,7 +253,9 @@ s    = matrix(rowSums(results, na.rm=TRUE))         # saldo wins and losses, ske
 nrrr = max(unlist(apply(opponents,1, table))); names(nrrr) <- "Round robin rounds, max same opponent"; nrrr
 Rmax = max(results, na.rm=TRUE); names(Rmax) = "Maximal skew symmetric win score"; Rmax
 Rmin = min(results, na.rm=TRUE)                     # min win score
-Par  = Rmax - Rmin; names(Par) = "Maximal win score (1=chess, 2=draughts, 3 = football)"; Par
+Parx  = Rmax - Rmin;
+Parx; Par
+warning(Parx != Par)
 
 # data.entry(opponents)                             # inspect for debugging
 # test opponents and results, if not OK check encoding input file != ANSI (½)

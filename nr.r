@@ -22,6 +22,7 @@ dPr <- function(x) {e <- Pr(x); return(e * (1-e))}  # derivative
 # We_min_W, difference between expected and actual score
 # f(x) = ( f1(x), f2(x) ... fn(x) )
 # fi(x) = Sum(We(xi - xj) - W), j = 1..rounds
+# Par = max(∀ plusscore - minscore)
 # ------------------------------------------------------
 We_min_W <- function(x) {
   dpopp <- x[,1] - x[as.vector(opponents)]; dim(dpopp) = dim(opponents)          
@@ -87,8 +88,8 @@ cg.solve  <- function(A, Adiag, b, reltol=NULL) {
 # ---------------------------------------------------
 
 # column vector of relative ratings
-Par <- max(results, na.rm=TRUE) - min(results, na.rm=TRUE) # maximal score
 rrtg <- mask_rtg <- as.matrix(ifelse(SCC$membership %in% largest_SCC, 0, NA)) # base is 0, exclude non largest SCC
+rrtg <- matrix(c(-240.824, 0, 240.824), 3, 1)
 diff <- rrtg
 
 W <- as.matrix(rowSums(results + mask_rtg[as.vector(opponents)] + mask_rtg[,1] , na.rm=TRUE)) # "Copeland" score points (above/below average), within SCC largest.
@@ -104,7 +105,9 @@ cgeps <- exp(-2)                                    # cg residual error relative
 
 steptol <- (1.0e-3 / 3)                             # stdev(diff) < steptol, 3 sigma change in diff after <<<e-three>>> decimals
 maxit <- npls + 5L                                  # maximum number of nr iterations, 5 for small npls
+maxit <- 100
 res0 <- We_min_W(rrtg)                              # residual at x=0 
+We    <- W + res0                                   # expected score
 
 L2step <- NA
 #----------------------------------------------------

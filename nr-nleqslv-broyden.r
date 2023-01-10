@@ -27,6 +27,7 @@ dE <- function(DP) {e <- E(DP); return(e * (1-e))}  # derivative
 # f(x) = ( f1(x), f2(x) ... fn(x), n = number of players
 # fi(x) = Sum(We(xi - xj) - W), j = 1..rounds
 # fn+1 =  ∑x
+# Par = max(∀ plusscore - minscore)
 # -------------------------------------------
 f <- function(x) {
    x <- head(x, -1) + mask_rtg                                # remove non_SCC and set dimension
@@ -49,8 +50,6 @@ f <- function(x) {
 
 # column vector of relative ratings
 # stopifnot(SCC$no==1)                              # OK iff strongly connected 
-                                                    
-Par <- max(results, na.rm=TRUE) - min(results, na.rm=TRUE) # maximal score
 
 mask_rtg <- matrix(ifelse(SCC$membership %in% largest_SCC, 0, NA)) # base is 0, exclude largest SCC
 W <- matrix(rowSums(results + mask_rtg[opponents] + mask_rtg[,1] , na.rm=TRUE)) # "Copeland" score points (above/below average), within SCC largest.

@@ -83,11 +83,11 @@ conjgrad  <- function(A, Adiag, b, Eps) {
 # calculate mask_SCC (n x r), NA for excluded players
 # recalculate wins, losses, draws within main domain
 # test sum wins and losses (otherwise nr will fail)
+# Par = max(∀ plusscore - minscore)
 # ---------------------------------------------------
 
 # column vector of relative ratings
 most_common_SCC <- which.max(table(SCC$membership))
-Par <- max(results, na.rm=TRUE) - min(results, na.rm=TRUE) # maximal score
 rrtg <- matrix(ifelse(SCC$membership %in% most_common_SCC, 0, 0)) # base is 0, no SCCs, <<<<<<<<<<<<<<<<<<<<<<<
 diff <- rrtg - rrtg                                 # set to zero
 mask_SCC  <- rrtg[as.vector(opponents)]             # set excluded opponents to NA

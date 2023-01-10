@@ -18,14 +18,18 @@ require(nleqslv)
 ls("package:nleqslv")
 require(igraph)
 
-celo <- 400/log(10)                                 # Elo constant in Logistic distribution
-E  <- function(DP) {return(1./(1. + exp(-DP)))}     # logistic function
-dE <- function(DP) {e <- E(DP); return(e * (1-e))}  # derivative
+# celo <- 400/log(10)                                 # Elo constant in Logistic distribution
+# E  <- function(DP) {return(1./(1. + exp(-DP)))}     # logistic function
+# dE <- function(DP) {e <- E(DP); return(e * (1-e))}  # derivative
+
+celo <- 2000 / 7
+E <- function(DP) { return(pnorm(DP, 0, 1, 1) ) }     # normal distribution
 
 #--------------------------------------------
 # find roots of f(x) = We(x) - W 
 # f(x) = ( f1(x), f2(x) ... fn(x)
 # fi(x) = Sum(We(xi - xj) - W), j = 1..rounds
+# Par = max(∀ plusscore - minscore)
 # -------------------------------------------
 f <- function(x) {
    x <- x + mask_rtg                                # remove non_SCC and set dimension
@@ -49,10 +53,8 @@ f <- function(x) {
 # column vector of relative ratings
 # stopifnot(SCC$no==1)                              # OK iff strongly connected 
                                                     
-Par <- max(results, na.rm=TRUE) - min(results, na.rm=TRUE) # maximal score
-
 mask_rtg <- matrix(ifelse(SCC$membership %in% largest_SCC, 0, NA)) # base is 0, exclude largest SCC
-W <- matrix(rowSums(results + mask_rtg[opponents] + mask_rtg[,1] , na.rm=TRUE)) # "Copeland" score points (above/below average), within SCC largest.
+W <- as.matrix(rowSums(results + mask_rtg[as.vector(opponents)] + mask_rtg[,1] , na.rm=TRUE)) # "Copeland" score points (above/below average), within SCC largest.
 stopifnot(sum(W) < .Machine$double.eps)             # zero sum
 maxit <- npls * log(npls) + 5                       # maximum number of nr iterations, 5 for small npls
 
@@ -79,4 +81,36 @@ print(sol)
 cat(sprintf("Stdev f$vec = %5.2g\n\n"  , sd(sol$fvec) ) )
 print(stime)
 
- 
+
+# report::cite_packages()
+# 
+#  
+# R Core Team (2021). [https://www.R-project.org/ Rc A language and environment for statistical
+# computing]. R Foundation for Statistical Computing, Vienna, Austria.
+# 
+# Hasselman B (2018). nleqslv: Solve Systems of Nonlinear Equations.
+# R package version 3.3.2, https://CRAN.R-project.org/package=nleqslv.
+# 
+#   @Manual{,
+#     title = {R: A Language and Environment for Statistical Computing},
+#     author = {{R Core Team}},
+#     organization = {R Foundation for Statistical Computing},
+#     address = {Vienna, Austria},
+#     year = {2022},
+#     url = {https://www.R-project.org/},
+#   }
+# 
+#   @Manual{,
+#     title = {nleqslv: Solve Systems of Nonlinear Equations},
+#     author = {Berend Hasselman},
+#     year = {2018},
+#     note = {R package version 3.3.2},
+#     url = {https://CRAN.R-project.org/package=nleqslv},
+#   }
+# 
+# R Core Team, ''[R: A Language and Environment for Statistical Computing https://CRAN.R-project.org/package=nleqslv]'', R Foundation for Statistical Computing,
+# Vienna, Austria, 2022.
+# 
+
+
+
