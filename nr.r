@@ -89,7 +89,6 @@ cg.solve  <- function(A, Adiag, b, reltol=NULL) {
 
 # column vector of relative ratings
 rrtg <- mask_rtg <- as.matrix(ifelse(SCC$membership %in% largest_SCC, 0, NA)) # base is 0, exclude non largest SCC
-rrtg <- matrix(c(-240.824, 0, 240.824), 3, 1)
 diff <- rrtg
 
 W <- as.matrix(rowSums(results + mask_rtg[as.vector(opponents)] + mask_rtg[,1] , na.rm=TRUE)) # "Copeland" score points (above/below average), within SCC largest.
