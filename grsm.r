@@ -3,11 +3,12 @@
 # define LSM when alternative model is required (LSM = 1,10,800 for LSM, ECF, AVG models)
 #
 # On the ranking of a Swiss system chess team tournament, 2015, https://arxiv.org/abs/1507.05045v5
+# A graph interpretation of the least squares ranking method (https://arxiv.org/abs/1508.06778)
 # Preference fusion when the number of alternatives exceeds two: indirect scoring procedures, 1999), https://arxiv.org/abs/math/0602171v3
 # Generalization of the Row Sum Method for Incomplete Paired Comparisons,” 1989, Automation and Remote Control, 50, 1103-1113,
 # https://www.researchgate.net/publication/258514016_Generalization_of_the_Row_Sum_Method_for_Incomplete_Paired_Comparisons_Automation_and_Remote_Control_50_1103-1113
-#
 # Generalized Row Sums (x) are a solution of:
+#   (I + εL)x(ε)(N, R, M) = (1 + εmn)s(N, R, M), where ε > 0, ε ≤ 1 / (m(n - 2)) or
 #   (e'.I + L)x = y.s, y = e' + m.n, e' > m.n - 2, e' = 1 /e (epsilon in above pubs)
 #
 # ECF  grading (by game) : Opponent's grade - 50  + 100n, n = (1, ½ or 0)
@@ -20,6 +21,7 @@
 # semi PD and b in column space of A (Kaasschieter)
 # terminology in:
 # https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.newton_krylov.html#scipy.optimize.newton_krylov
+# 19-01-2023, LSM naar elon
 
 maxlines = 500                                      # max players to print
 
@@ -69,15 +71,15 @@ s = matrix(rowSums(results, na.rm=TRUE))            # saldo wins and losses, ske
 growsums <- matrix(0, nrow(opponents), 1)           # Generalized Row Sums
 
 if (exists("LSM")) {                                # choose LSM or GRS
-    elon <- 0; y <- LSM ;                           # ε = 0, γ = 2 (LSM), y = 400 (AVG ratings)
+    elon <- LSM; y <- 1 ;                           # ε = 0, γ = scale factor
 } else {
     elon <- (npls-2) * nrrr;                        # elon = round(log(npls)), approx Elo
-	elon <- (npls-2 + nrrr - 1)
+	elon <- (npls-1) * nrrr;                        # cheb 1989 example 1
     y    <- elon + npls * nrrr;                     # GRS: y = ε' + m.n,  well chosen: ε' ≥ n.m - 2 (Gonzalez-Diaz) 
-	y    <- elon + npls + nrrr - 1;
 }
 
 # ---------------------------------------------------
+# Original equation Cheboratev
 # solve x | (e'.I + L)x = y.s
 # e'is parameter, y = e'+ m.n, n = players, m = max number 
 # L is Laplacian of the adjacency game graph

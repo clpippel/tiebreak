@@ -1,5 +1,6 @@
 # create report of tiebreak methods
 # Run gf.r first to process input
+# 19-01-2023, Colley matrix, Laplace rule of succession
 
 report_tpr <- TRUE									# Signal reporting
 
@@ -18,12 +19,23 @@ ygrs    <- y                                        # P(x) = ½ + grs / ygrs / p
 
 source('recursive-bhz.r', echo=FALSE, print=TRUE)   # Recursive Buchholz
 
-LSM <- 1                                            # Least Square Ratings !!!!
+LSM <- 0                                            # Least Square Ratings, add LSM to diagonal Laplacian matrix
 source('grsm.r', echo=FALSE)
 lsq     <- growsums                                 # P(x) = ½ + lsq / par / 2  ; lsq probability
+elonlsq <- elon
+ylsq    <- y
 
+# https://en.wikipedia.org/wiki/Rule_of_succession  # Laplace: (s + n) / N + 2)
+# https://www.colleyrankings.com/matrate.pdf
+LSM <- 2                                            # Colleys matrix, ε = 2
+source('grsm.r', echo=FALSE)
+Lapl <- growsums + Par / 2                          # recalibrate to draw (Colley matrix)
+elonLapl <- elon
+yLapl    <- y
+
+colnames(Lapl)   <- "Lapl"
 colnames(avg400) <- "A400"
-colnames(lsq) <- "lsq"
+colnames(lsq)    <- "lsq"
 
 stopifnot( sd(avg400 - (lsq/Par)*800, na.rm = TRUE) < 1E5) # lsq ~ AVG400
 
@@ -36,13 +48,14 @@ source('fairbets.r', echo=FALSE, print=TRUE)
 fbpts <- fb * sum(points)                           # normalize by all points (ping-pong model (Volij)
 
 frk <- seq_len(npls)                                # final rank
-rank1 <- matrix(rank(-rrtg,   ties.method= "min")); colnames(rank1) <- "  Rk"
-rank2 <- matrix(rank(-avg400, ties.method= "min")); colnames(rank2) <- "  Rk"
-# rank3 <- matrix(rank(-rbhz,   ties.method= "min")); colnames(rank3) <- "  Rk"
-# rank4 <- matrix(rank(-lsq   , ties.method= "min")); colnames(rank4) <- "  Rk"
-rank5 <- matrix(rank(-grs,    ties.method= "min")); colnames(rank5) <- "  Rk"
-rank6 <- matrix(rank(-pev,    ties.method= "min")); colnames(rank6) <- "  Rk"
-rank7 <- matrix(rank(-fbpts,  ties.method= "min")); colnames(rank7) <- "  Rk"
+rank1 <- matrix(rank(-lsq   , ties.method= "min")); colnames(rank1) <- "  Rk"
+rank2 <- matrix(rank(-rbhz,   ties.method= "min")); colnames(rank2) <- "  Rk"
+rank3 <- matrix(rank(-avg400, ties.method= "min")); colnames(rank3) <- "  Rk"
+rank4 <- matrix(rank(-rrtg,   ties.method= "min")); colnames(rank4) <- "  Rk"
+rank5 <- matrix(rank(-Lapl,   ties.method= "min")); colnames(rank5) <- "  Rk"
+rank6 <- matrix(rank(-grs,    ties.method= "min")); colnames(rank6) <- "  Rk"
+rank7 <- matrix(rank(-pev,    ties.method= "min")); colnames(rank7) <- "  Rk"
+rank8 <- matrix(rank(-fbpts,  ties.method= "min")); colnames(rank8) <- "  Rk"
 
 rrtgf <- rrtg
 Roffset <- NA
@@ -60,18 +73,19 @@ colnames(losses) <- "-"
 colnames(s)      <- "t/2"                           # t = Copeland-index, t / 2 == s == rowSums(R)
 colnames(W)      <- paste0(intToUtf8(177), "W")     # plus-minus sign compatible with Ansi
 colnames(pctW)   <- paste0(intToUtf8(177), "%W")    # plus-minus sign compatible with Ansi
-report1 <- matrix(round(rrtgf))   ; colnames(report1) <- "rElo"
-report2 <- matrix(round(avg400,0)); colnames(report2) <- "A400"
-# report3 <- matrix(round(rbhz  ,3)); colnames(report3) <- "RBhz"
-# report4 <- matrix(round(lsq   ,3)); colnames(report4) <- "lsq"
-report5 <- matrix(round(grs   ,3)); colnames(report5) <- paste0("grs",elongrs)
-report6 <- matrix(round(pev   ,3)); colnames(report6) <- "Pev"
-report7 <- matrix(round(fbpts ,3)); colnames(report7) <- "f-bets"
-score   <- apply(as.character(as.hexmode(cbind(rank1, rank2, rank5, rank6, rank7)), width=1), 1, paste, collapse="") #drop 3,4 
-score   <- ifelse(nchar(score) > 5, "", score)      # single digit ranks x 5
+report1 <- matrix(round(lsq   ,3)); colnames(report1) <- "lsq"
+report2 <- matrix(round(rbhz  ,3)); colnames(report2) <- "RBhz"
+report3 <- matrix(round(avg400,0)); colnames(report3) <- "A400"
+report4 <- matrix(round(rrtgf))   ; colnames(report4) <- "rElo"
+report5 <- matrix(round(Lapl  ,3)); colnames(report5) <- "Lapl"
+report6 <- matrix(round(grs   ,3)); colnames(report6) <- paste0("grs",elongrs)
+report7 <- matrix(round(pev   ,3)); colnames(report7) <- "Pev"
+report8 <- matrix(round(fbpts ,3)); colnames(report8) <- "f-bets"
+score   <- apply(as.character(as.hexmode(cbind(rank1, rank2, rank3, rank4, rank5, rank6, rank7, rank8)), width=1), 1, paste, collapse="") #drop 3,4 
+score   <- ifelse(nchar(score) > min(nchar(score)), "", score) # single digit ranks
 report  <- cbind(rdtable[,gfrmcols]
                 , N, wins, draws, points, s, W, round(pctW, 2)
-                , rank1, report1, rank2, report2,  rank5, report5, rank6, report6, rank7, report7, score)
+                , rank1, report1, rank2, report2, rank3, report3, rank4, report4, rank5, report5, rank6, report6, rank7, report7, rank8, report8, score)
 
 # report[is.na(report)] <- Inf
 
@@ -84,10 +98,11 @@ cat(crlf, paste("----------------------------- report.r", sep=", ") )
 cat(sprintf(crlf))
 cat(sprintf("%s", fcsv), crlf)
 cat(gfheader, sep='\n')
-cat(sprintf("\nGamefile: %dx%d (nrrr = %d)", npls, nrds, nrrr), crlf)
-cat(sprintf("grs     : e'= %2d, y = %d (= e' + n.m)", elongrs, ygrs), crlf)
-cat(sprintf("lsq     : e'= %2d, y = %d", 0, LSM),   crlf)
-cat(sprintf("AVGSums : e'= %2d, y = %g, Par = %g", 0, 800 / Par, Par), crlf, crlf)
+cat(sprintf("\nGamefile: %dx%d(nrrr = %d), Par = %g", npls, nrds, nrrr, Par), crlf)
+cat(sprintf("lsq  : e'= %2d, y = %d", elonlsq, ylsq), crlf)
+cat(sprintf("A400 : e'= %2d, y = %g", 0, 800 / Par), crlf)
+cat(sprintf("Lapl : e'= %2d, y = %d", elonLapl, yLapl), crlf)
+cat(sprintf("grs  : e'= %2d, y = %d (= e' + n.m)", elongrs, ygrs), crlf, crlf)
 
 print(report, quote=FALSE, row.names = FALSE, , na.print = ".", max=200*ncol(report))
 }
