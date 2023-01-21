@@ -23,6 +23,7 @@
 #   5   5            Vögtlin André 1719 SUI    1  0,00   0 2b0 3w0 4b0 6b1 1w0
 #   6   6           Züllig Flavian 1379 SUI    0  0,00   0 1b0 4w0 2b0 5w0 3b0
 
+setwd("d:\\Users\\clpip\\Documents\\Work")          # set working directory
 cat(rm(list = ls()))                                # remove all objects
 if (!require(igraph)) q()                           # install.packages("igraph") or use menu
 options(error=traceback)
@@ -30,6 +31,7 @@ cat("\014")                                         # clear console
 sessionInfo()
 
 rrrounds <- 1
+names(rrrounds) <- "Round Robin Round"
 
 fcsv <- ifelse(exists("choose.files")
               ,choose.files(default="*.csv", multi = FALSE)
@@ -55,6 +57,7 @@ gfheader <- cbind(apply(rdtable[seq_len(trow-1),], 1, function(row) {paste(row[r
 
 names(rdtable) <- rdtable[trow,]                    # set column names from input
 rdtable <- rdtable[-c(seq_len(trow)),]              # remove header rows, if any
+
 rownames(rdtable) <- c()                            # remove rownames
 
 npls = nrow(rdtable)                                # number of players
@@ -134,7 +137,9 @@ for (r in seq_len(nrds) ) {
 # add headers
 gamefile <- cbind(rdtable[,gfrmcols], gfile)
 
+
 {
+print(rrrounds)
 writeLines(gfheader)
 write.table(gamefile, quote=FALSE, row.names = FALSE, sep=";")
 }
