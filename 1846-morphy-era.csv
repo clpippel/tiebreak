@@ -1,0 +1,13 @@
+"; The rating of chess players; 3.4; relative ratings";;;;;;;;;;;
+"; Validate relative ratings";;;;;;;;;;;
+Rk;Name;Elo;FED;1;2;3;4;5;6;7;8
+1;Anderssen;552;GER;3a1.5;6a4;bye;2a10.5;4a10.5;8a4;5a5;7a5
+2;Harrwitz;518;POL;9a21;3a14.5;6a3.5;1a7.5;bye;4a1.5;8a0;5a16
+3;Horwitz;406;GER;1a0.5;2a11.5;4a1;8a11;5a1;7a0;9a7.5;bye
+4;Kolisch;516;SK;7a17;9a0;3a3;6a0;1a9.5;2a2.5;bye;8a0
+5;Lowenthal;505;HON;8a2;bye;7a0;9a11;3a5;6a4.5;1a3;2a11
+6;Morphy;695;US;bye;1a13;2a5.5;4a0;8a0;5a10.5;7a9.5;9a0
+7;Paulsen;502;GER;4a19;8a0;5a0;bye;9a0;3a0;6a2.5;1a4
+8;Staunton;508;UK;5a0;7a0;9a11;3a20;6a0;1a1;2a7;4a0
+9;Williams;425;UK;2a6;4a0;8a10;5a8;7a0;bye;3a9.5;6a0
+#;;514;;;;;;;;;

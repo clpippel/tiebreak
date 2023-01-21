@@ -1,5 +1,6 @@
 # ---------------------------------------------------------------------
 # nr-nleqslv.r
+# run gf.r before
 # Solving systems of nonlinear equations with Broyden or Newton
 # https://cran.r-project.org/web/packages/nleqslv/nleqslv.pdf
 # calculate relative ratings (x) as roots of We(x) - W = 0
@@ -25,6 +26,10 @@ require(igraph)
 celo <- 2000 / 7
 E <- function(DP) { return(pnorm(DP, 0, 1, 1) ) }     # normal distribution
 
+# mPar  <- Par                                        # score is single game
+mPar  <- 1                                            # chess score
+Mgms <- gfile+t.sparse(gfile, opponents) / mPar       # number of games in score
+
 #--------------------------------------------
 # find roots of f(x) = We(x) - W 
 # f(x) = ( f1(x), f2(x) ... fn(x)
@@ -37,9 +42,9 @@ f <- function(x) {
   dpopp <- x[,1] + mask_rtg[,1] - x[as.vector(opponents)]  
   dim(dpopp) = dim(opponents)    
 
-  Wem <- (E(dpopp / celo) - 0.5)                    # expected score above average(n x r)
+  Wem <- (E(dpopp / celo) - 0.5) * Mgms             # expected score above average(n x r), times #games
   stopifnot(sum(Wem, na.rm=TRUE) < .Machine$double.eps * length(Wem)) # sum of rating differences
-  We <- matrix(rowSums(Wem, na.rm=TRUE)) * Par      # expected score (n)
+  We <- matrix(rowSums(Wem, na.rm=TRUE)) * mPar     # expected score (n)
   return(c(We-W))                                   # residual = f(x)
 }
 
@@ -58,7 +63,7 @@ W <- as.matrix(rowSums(results + mask_rtg[as.vector(opponents)] + mask_rtg[,1] ,
 stopifnot(sum(W) < .Machine$double.eps)             # zero sum
 maxit <- npls * log(npls) + 5                       # maximum number of nr iterations, 5 for small npls
 
-p0 <- rep(0, nrow(W))
+p0 <- rep(500, nrow(W))
 
 stime <- system.time(                                                
 sol <- nleqslv ( 
@@ -80,37 +85,4 @@ uz[] <- uz / sum(uz)                                 # genormeerd op som = 1
 print(sol)
 cat(sprintf("Stdev f$vec = %5.2g\n\n"  , sd(sol$fvec) ) )
 print(stime)
-
-
-# report::cite_packages()
-# 
-#  
-# R Core Team (2021). [https://www.R-project.org/ Rc A language and environment for statistical
-# computing]. R Foundation for Statistical Computing, Vienna, Austria.
-# 
-# Hasselman B (2018). nleqslv: Solve Systems of Nonlinear Equations.
-# R package version 3.3.2, https://CRAN.R-project.org/package=nleqslv.
-# 
-#   @Manual{,
-#     title = {R: A Language and Environment for Statistical Computing},
-#     author = {{R Core Team}},
-#     organization = {R Foundation for Statistical Computing},
-#     address = {Vienna, Austria},
-#     year = {2022},
-#     url = {https://www.R-project.org/},
-#   }
-# 
-#   @Manual{,
-#     title = {nleqslv: Solve Systems of Nonlinear Equations},
-#     author = {Berend Hasselman},
-#     year = {2018},
-#     note = {R package version 3.3.2},
-#     url = {https://CRAN.R-project.org/package=nleqslv},
-#   }
-# 
-# R Core Team, ''[R: A Language and Environment for Statistical Computing https://CRAN.R-project.org/package=nleqslv]'', R Foundation for Statistical Computing,
-# Vienna, Austria, 2022.
-# 
-
-
 
