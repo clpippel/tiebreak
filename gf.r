@@ -1,12 +1,14 @@
-# gf.r 
+# gf.r
+# Process game file.
 # Unlicense (Ø) 2021 CLP, IJmuiden
 # Hieke Hylkema (Lin Yutan):
 # - Een goede reiziger weet niet waar hij naar toe gaat.
 # - Een uitstekende reiziger weet niet waar hij vandaan komt.
 #
-#   2022-aug-14, SCC, make_cluster
-#   2022-aug-14, handling of nonexisting opponents improved
-#   2023-jan-10, calculation of Par corrected
+#   2022-aug-14, SCC, make_cluster.
+#   2022-aug-14, handling of nonexisting opponents improved.
+#   2023-jan-10, calculation of Par corrected.
+#   2023-jan-23, tidy source.
 #
 #   CSV, Comma Separated Values (RFC 4180)
 #   remove manually "=" from ="0" (excel)
@@ -360,38 +362,23 @@ try(
   print(try(system.time(crosstab <- as.matrix(g[]))))
   laplacian <- -(crosstab + t(crosstab))
   diag(laplacian) <- rowSums(crosstab)
-  lev <- Mod(eigen(laplacian)$values)
+  lev <- Mod(eigen(laplacian)$values)               # eigen vector Laplacian
   kappa <- max(lev) / min(lev[lev>1e-5]); names(kappa) = "Kappa matches matrix"; print(kappa)
-  
+
   crosstab[(as.matrix(g[]) == 0 & t(as.matrix(g[]) == 0))] <- "."
   crosstab <- cbind(rdtable[,gfrmcols],crosstab)
  
   print(crosstab[1:min(20,npls), 1:min(ncol(crosstab),48)], quote=FALSE) # print tournament
 
 }, silent = FALSE)
-         
+        
 print(sprintf("# spelers = %d, aantal rondes = %d ", npls,  nrds), quotes=FALSE)
 
 edge_density(as.undirected(g, mode = c("collapse")))
 
-# rm(elist, qt, qg, lyt)                            # tidy up intermediate vars
+rm(wts, elist, oppNOK, Parx)                                      # tidy up intermediate vars
 
 # --------------------------------------------------# 
 # source('report.r', echo=FALSE, print=TRUE)        #
 # --------------------------------------------------#
-# system.time(ttg <- t.graph(t.graph(g)))
-# identical_graphs(g, ttg)
-# permute(g, sample(vcount(g)))
-
-stopifnot(identical_graphs(t.graph(t.graph(g)), g) )
-# test bug 542
-g %>% get.edgelist %>% .[, 2:1] %>% graph_from_edgelist(directed=TRUE) -> tg # transpose graph
-{
-  stopifnot(length(V(tg)) == vcount(tg))
-  stopifnot(all(V(tg) <= vcount(tg)))
-  permute(tg, match(V(tg), V(g)) ) # restore original order of vertices
-}
-stopifnot(identical_graphs(g, g %>% t.graph %>% t.graph))
-g |> t.graph() |> t.graph() |> identical_graphs(g) |> stopifnot()
-
 # source('report.r', echo=FALSE, print=TRUE)        #
