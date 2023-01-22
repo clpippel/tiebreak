@@ -1,14 +1,14 @@
-,Vienna 1873,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-Pl,Player,Total,1,2,3,4,5,6,7,8,9,10,11,1,2,3,4,5,6,7,8,9,10,11,1,2,3,4,5,6,7,8,9,10,11
-1,Joseph Henry Blackburne (United Kingdom),21.5,12w0,2w1,3b1,4w0,5b1,6w1,7b1,8w1,9b1,10w1,11b1,12w1,2w1,3b0,4w0,5b1,6w1,7b1,8w1,9b1,10w1,11b½,12w1,2w½,3b1,4w½,5b0,,,8w0,,10w0,11b1
-2,Wilhelm Steinitz (Bohemia),20.5,11w1,1b0,12b1,3w1,4b1,5w1,6b1,7w1,8b½,9w½,10b1,11w1,1b0,12b1,3w1,4b1,5w1,6b1,7w1,8b½,9w½,10b1,,1b½,,,,,,,8b1,9w1,
-3,Adolf Anderssen (German Empire),19.0,10w1,11b1,1w0,2b0,12b1,4w1,5b1,6w1,7b1,8w0,9b½,10w1,11b1,1w1,2b0,12b½,4w0,5b1,6w0,7b0,8w½,9b1,10w0,,1w0,,12b1,4w1,,6w1,7b1,8w1,9b½
-4,Samuel Rosenthal (France),17.0,9w1,10b1,11w0,1b1,2w0,3b0,12b1,5w0,6b0,7w1,8b1,9w1,10b1,11w1,1b1,2w0,3b1,12b1,5w½,6b0,7w1,8b1,,,11w1,1b½,,3b0,,5w1,,7w0,
-5,Louis Paulsen (German Empire),16.0,8w1,9b1,10w1,11b1,1w0,2b0,3w0,4b1,12b1,6w1,7b0,8w1,9b½,10w½,11b1,1w0,2b0,3w0,4b½,12b1,6w1,7b½,,9b1,10w0,,1w1,,,4b0,,,7b1
-6,Henry Edward Bird (United Kingdom),14.5,7w1,8b1,9w1,10b1,11w1,1b0,2w0,3b0,4w1,5b0,12b1,7w0,8b1,9w1,10b1,11w1,1b0,2w0,3b1,4w1,5b0,12b1,7w½,,,,,,,3b0,,,
-7,Josef Heral (Austria),12.0,6b0,12b0,8w½,9b0,10w1,11b½,1w0,2b0,3w0,4b0,5w1,6b1,12b0,8w1,9b1,10w0,11b1,1w0,2b0,3w1,4b0,5w½,6b½,12b1,8w0,9b½,10w½,11b0,,,3w0,4b1,5w0
-8,Max Fleissig (Hungary),11.5,5b0,6w0,7b½,12b1,9w1,10b0,11w0,1b0,2w½,3b1,4w0,5b0,6w0,7b0,12b1,9w0,10b1,11w1,1b0,2w½,3b½,4w0,,,7b1,,9w1,10b½,11w0,1b1,2w0,3b0,
-9,Philipp Meitner (Austria),11.5,4b0,5w0,6b0,7w1,8b0,12b1,10w½,11b1,1w0,2b½,3w½,4b0,5w½,6b0,7w0,8b1,12b1,10w1,11b½,1w0,2b½,3w0,,5w0,,7w½,8b0,,10w1,11b½,,2b0,3w½
-10,Adolf Schwarz (Hungary),10.5,3b0,4w0,5b0,6w0,7b0,8w1,9b½,12b1,11w½,1b0,2w0,3b0,4w0,5b½,6w0,7b1,8w0,9b0,12b½,11w½,1b0,2w0,3b1,,5b1,,7b½,8w½,9b0,12b½,11w½,1b1,
-11,Oscar Gelbfuhs (Austria),10.0,2b0,3w0,4b1,5w0,6b0,7w½,8b1,9w0,10b½,12b½,1w0,2b0,3w0,4b0,5w0,6b0,7w0,8b0,9w½,10b½,12b1,1w½,,,4b0,,,7w1,8b1,9w½,10b½,12b1,1w0
-12,Karl Pitschel (Austria),5.0,1b1,7w1,2b0,8w0,3b0,9w0,4b0,10w0,5b0,11w½,6b0,1b0,7w1,2b0,8w0,3b½,9w0,4b0,10w½,5b0,11w0,6b0,1b0,7w0,,,3b0,,,10w½,,11w0,
+;Vienna 1873;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Pl;Player;Total;1;2;3;4;5;6;7;8;9;10;11;1;2;3;4;5;6;7;8;9;10;11;1;2;3;4;5;6;7;8;9;10;11
+1;Joseph Henry Blackburne (United Kingdom);21.5;12w0;2w1;3b1;4w0;5b1;6w1;7b1;8w1;9b1;10w1;11b1;12w1;2w1;3b0;4w0;5b1;6w1;7b1;8w1;9b1;10w1;11b½;12w1;2w½;3b1;4w½;5b0;;;8w0;;10w0;11b1
+2;Wilhelm Steinitz (Bohemia);20.5;11w1;1b0;12b1;3w1;4b1;5w1;6b1;7w1;8b½;9w½;10b1;11w1;1b0;12b1;3w1;4b1;5w1;6b1;7w1;8b½;9w½;10b1;;1b½;;;;;;;8b1;9w1;
+3;Adolf Anderssen (German Empire);19.0;10w1;11b1;1w0;2b0;12b1;4w1;5b1;6w1;7b1;8w0;9b½;10w1;11b1;1w1;2b0;12b½;4w0;5b1;6w0;7b0;8w½;9b1;10w0;;1w0;;12b1;4w1;;6w1;7b1;8w1;9b½
+4;Samuel Rosenthal (France);17.0;9w1;10b1;11w0;1b1;2w0;3b0;12b1;5w0;6b0;7w1;8b1;9w1;10b1;11w1;1b1;2w0;3b1;12b1;5w½;6b0;7w1;8b1;;;11w1;1b½;;3b0;;5w1;;7w0;
+5;Louis Paulsen (German Empire);16.0;8w1;9b1;10w1;11b1;1w0;2b0;3w0;4b1;12b1;6w1;7b0;8w1;9b½;10w½;11b1;1w0;2b0;3w0;4b½;12b1;6w1;7b½;;9b1;10w0;;1w1;;;4b0;;;7b1
+6;Henry Edward Bird (United Kingdom);14.5;7w1;8b1;9w1;10b1;11w1;1b0;2w0;3b0;4w1;5b0;12b1;7w0;8b1;9w1;10b1;11w1;1b0;2w0;3b1;4w1;5b0;12b1;7w½;;;;;;;3b0;;;
+7;Josef Heral (Austria);12.0;6b0;12b0;8w½;9b0;10w1;11b½;1w0;2b0;3w0;4b0;5w1;6b1;12b0;8w1;9b1;10w0;11b1;1w0;2b0;3w1;4b0;5w½;6b½;12b1;8w0;9b½;10w½;11b0;;;3w0;4b1;5w0
+8;Max Fleissig (Hungary);11.5;5b0;6w0;7b½;12b1;9w1;10b0;11w0;1b0;2w½;3b1;4w0;5b0;6w0;7b0;12b1;9w0;10b1;11w1;1b0;2w½;3b½;4w0;;;7b1;;9w1;10b½;11w0;1b1;2w0;3b0;
+9;Philipp Meitner (Austria);11.5;4b0;5w0;6b0;7w1;8b0;12b1;10w½;11b1;1w0;2b½;3w½;4b0;5w½;6b0;7w0;8b1;12b1;10w1;11b½;1w0;2b½;3w0;;5w0;;7w½;8b0;;10w1;11b½;;2b0;3w½
+10;Adolf Schwarz (Hungary);10.5;3b0;4w0;5b0;6w0;7b0;8w1;9b½;12b1;11w½;1b0;2w0;3b0;4w0;5b½;6w0;7b1;8w0;9b0;12b½;11w½;1b0;2w0;3b1;;5b1;;7b½;8w½;9b0;12b½;11w½;1b1;
+11;Oscar Gelbfuhs (Austria);10.0;2b0;3w0;4b1;5w0;6b0;7w½;8b1;9w0;10b½;12b½;1w0;2b0;3w0;4b0;5w0;6b0;7w0;8b0;9w½;10b½;12b1;1w½;;;4b0;;;7w1;8b1;9w½;10b½;12b1;1w0
+12;Karl Pitschel (Austria);5.0;1b1;7w1;2b0;8w0;3b0;9w0;4b0;10w0;5b0;11w½;6b0;1b0;7w1;2b0;8w0;3b½;9w0;4b0;10w½;5b0;11w0;6b0;1b0;7w0;;;3b0;;;10w½;;11w0;
