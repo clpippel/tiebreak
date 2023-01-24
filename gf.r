@@ -356,19 +356,20 @@ print(
 print(qg)
 
 # create cross matrix nrrr = 1 for overview
-if (nrrr == 1L && npls * nrds < 10000) 
+if (npls <- 64)
 try(
 {
   print(try(system.time(crosstab <- as.matrix(g[]))))
-  laplacian <- -(crosstab + t(crosstab))
-  diag(laplacian) <- rowSums(crosstab)
+  laplacian <- -(crosstab + t(crosstab))            # Note, Par = 2. 1-1, 2-0, counts as two games 
+  diag(laplacian) <- -rowSums(laplacian)
   lev <- Mod(eigen(laplacian)$values)               # eigen vector Laplacian
   kappa <- max(lev) / min(lev[lev>1e-5]); names(kappa) = "Kappa matches matrix"; print(kappa)
 
   crosstab[(as.matrix(g[]) == 0 & t(as.matrix(g[]) == 0))] <- "."
   crosstab <- cbind(rdtable[,gfrmcols],crosstab)
  
-  print(crosstab[1:min(20,npls), 1:min(ncol(crosstab),48)], quote=FALSE) # print tournament
+  print("Game results")
+  print(head(crosstab, 20), quote=FALSE) # print first lines of tournament
 
 }, silent = FALSE)
         
