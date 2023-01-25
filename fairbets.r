@@ -23,7 +23,7 @@ cat("\n",ifelse(exists("pefbev"),"Perron Frobenius eigenvector","Fairbets") ,"\n
 largest_SCC <- which.max(table(SCC$membership))
 # column vector of relative ratings
 fb <- matrix(ifelse(SCC$membership %in% largest_SCC, 0, 0)) # set non-SCC players to NA (or zero when one group) <<<<<<
-fb[which(apply(is.na(opponents), 1, all))] <- NA    # remove isolates <<<<<<
+fb[apply(is.na(opponents), 1, all)] <- NA           # remove isolates, no opponent <<<<<<
 
 mask_SCC  <- fb[c(opponents)]                       # set excluded opponents to NA
 mask_SCC  <- mask_SCC + fb[,1]                      # set opponents of excluded players to NA
@@ -99,7 +99,7 @@ try( {
   dev.new()
   lytfb     <- layout.sugiyama(g, hgap = 1L, vgap = 1L)$layout
   lytfb[,2] <- fb
-  lytfb[which(is.na(fb)),2] <- max(fb[which(!is.na(fb))]) # replace NA by max
+  lytfb[is.na(fb),2] <- max(fb[!is.na(fb)])           # replace NA by max
   plot(g, layout=lytfb, main = paste0(ifelse(exists("pefbev"),"Perron Frobenius eigenvector", "Fairbets")
                                        , ifelse(any(is.na(fb)), " (non-SCC, isolates removed)", " (all games, no SCCs)")
 ))
