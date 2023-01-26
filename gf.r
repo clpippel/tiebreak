@@ -1,5 +1,5 @@
 # gf.r
-# Process game file.
+# Read game file, create tables to calculate rankings.
 # Unlicense (Ø) 2021 CLP, IJmuiden
 # Hieke Hylkema (Lin Yutan):
 # - Een goede reiziger weet niet waar hij naar toe gaat.
@@ -58,7 +58,7 @@
 # class(), methods(class="igraph")
 # length(), object.size(), nchar()
 # vector("character", 10), numeric(5), logical(5), list()
-# names, dimnames, dim
+# names, dimnames, dim, setNames
 # Integer constant, 1L, 2L
 # head, tail, nrow(), ncol()
 # sapply(dataframe, class)
@@ -173,6 +173,7 @@ stopifnot(isTRUE(npls > 0) )                        # non trivial
 FMJD <- max(regexpr("*FMJD-report", gfheader)) > 0L # FMJD report style
 
 # columns to remove. Keep: R*10*, .*10*  | 10*..., where * is any sequence
+# drop columns with empty header
 gfrmcols <- grep("^([R.]+.*\\d+.*|\\d+.*)$", names(rdtable), ignore.case=TRUE, invert=TRUE)
 
 #-----------------------------------------------------------------------------------
@@ -238,7 +239,7 @@ bhlz <- rowSums(matrix(points[opponents], nrow(points)), na.rm=TRUE) # Buchholz,
 SB   <- rowSums(gfile * points[opponents], na.rm=TRUE) # Sonneborg-Berger, Neustadtl
 FB   <- SB / rowSums(t.sparse(gfile, opponents), na.rm=TRUE) # Fairbets first iteration
 
-raticol <- which(regexpr("^([Rr]a?ti?n?g$|FMJD|APRO)$", trimws(names(rdtable))) >0)
+raticol <- which(regexpr("^([Rr]a?ti?n?g$|FMJD|APRO)$", trimws(names(rdtable))) >0) # Rating column
 aor <- rowMeans(matrix(as.numeric(rdtable[,raticol][opponents]), nrow(rdtable)), na.rm=TRUE) #average opponent rtg
 
 results <- (gfile - t.sparse(gfile, opponents)) / 2 # skew symmetric results
@@ -292,8 +293,8 @@ g <- add_edges(g, as.vector(t(elist[,1:2])), weight=elist[,3]) # add results (dr
 
 # partition graph into strongly connected components -------
 SCC    <- make_clusters(g, components(g, mode="strong")$membership)
-SCC$no <- length(SCC)
-largest_SCC <- which.max(table(SCC$membership))     # most populated SCC (main)
+SCC$no <- length(SCC)                               # Number of SCC's
+largest_SCC <- which.max(table(SCC$membership))     # Index most populated SCC (main)
 
 g <- set_graph_attr( g, name="main"
                    , value=paste("Players =", npls, ", Games = ", sum(wins,draws, losses)/2, ", SCCs =", SCC$no)
@@ -356,7 +357,7 @@ print(
 print(qg)
 
 # create cross matrix nrrr = 1 for overview
-if (npls <- 64)
+if (npls < 64)
 try(
 {
   print(try(system.time(crosstab <- as.matrix(g[]))))
@@ -379,7 +380,5 @@ edge_density(as.undirected(g, mode = c("collapse")))
 
 rm(wts, elist, oppNOK, Parx)                                      # tidy up intermediate vars
 
-# --------------------------------------------------# 
-# source('report.r', echo=FALSE, print=TRUE)        #
 # --------------------------------------------------#
 # source('report.r', echo=FALSE, print=TRUE)        #
