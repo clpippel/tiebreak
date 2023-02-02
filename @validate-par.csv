@@ -1,0 +1,7 @@
+;Score with continuous-outcome, validate Par = 1
+; A > B, B > C
+;Example with no maximal score 1-0, 0-1
+Pos;Naam;1;2;3
+1;A;      ;2w0.80
+2;B;3w0.80;1z0.20
+3;C;2z0.20;      
