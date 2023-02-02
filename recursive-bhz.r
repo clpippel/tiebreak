@@ -9,6 +9,8 @@
 # This might also occur when the domain is divisible.
 # One solution is to introduce a tie against yourself in the crosstable.
 # This does not effect the Laplacian and therefore also not the outcome of the iteration.
+#
+# 2023-1-31 - redefine maxit
 #----------------------------------------------------------------------------------------
 
 cat('\n', paste("----------------------------- recursive-bhz.r", sep=", "), '\n')
@@ -26,7 +28,7 @@ convergence <- c(NA)                                # concatenate missing value 
 npls <- nrow(opponents)
 stopifnot(npls > 1)                                 # it needs two to tango
 
-maxit <- max(min(sum(npls), 1000), 20)              # max number of iterations (guess)
+maxit <- max(npls * npls, 100L)                     # max number of iterations (guess)
 
 steptol <- 1e-4 / 3                                 # change in diff after <<<e-four>>> decimals                                              # change in diff after <<<three>>> decimals
 it <- 0;

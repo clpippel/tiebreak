@@ -1,0 +1,42 @@
+;E.Landau, Uber preisverteilung bei spielturniere. Zischr. .f. Math. u. Phys. 63
+;https://iris.univ-lille.fr/bitstream/handle/1908/2031/AP16_63.pdf?sequence=2
+;divisible domain, iteration result depends on initial values
+Pl;Name;1;2;3;4;5
+ 1;A;6w1;2w½;3b1;4w1;5b1
+ 2;B;5w1;1b½;6b1;3w½;4b1
+ 3;C;4w1;5b1;1w0;2b½;6b1
+ 4;D;3b0;6b0;5w1;1b0;2w0
+ 5;E;2b0;3w0;4b0;6b1;1w0
+ 6;F;1b0;4w1;2b0;5w0;3b0
+# cross table
+#P;N;  A   B   C D E F
+#1;A;  0 0.5   1 1 1 1
+#2;B;0.5   0 0.5 1 1 1
+#3;C;  0 0.5   0 1 1 1
+#4;D;  0   0   0 0 1 0
+#5;E;  0   0   0 0 0 1
+#6;F;  0   0   0 1 0 0
+# Google limited behaviour of Markov processes
+# MIT Open Courseware, Discrete Stochastic Processes, chapetr 3
+# https://ocw.mit.edu/courses/6-262-discrete-stochastic-processes-spring-2011/pages/course-notes/
+#
+# https://www.arndt-bruenner.de/mathe/scripts/engl_eigenwert2.htm
+# Characteristic Polynomial:
+#   x^6 - 0.5x^4 - 1.25x^3 + 0.5x + 0.25
+# Real Eigenvalues:   { 0.8846461771193158 ;  1 }
+# Complex Eigenvalues: { -0.4999999999999998-0.8660254037844385î ;  -0.4999999999999998+0.8660254037844385î ;  -0.44232308855965813-0.2948714025111036î ;  -0.44232308855965813+0.2948714025111036î }
+# Eigenvectors:
+#  for Eigenvalue -0.4999999999999998-0.8660254037844385î:
+#    [ 0 ; 0 ; 0 ; -1-1.732050807568878î ; -1+1.7320508075688779î ; 2 ]
+#  for Eigenvalue -0.4999999999999998+0.8660254037844385î:
+#    [ 0 ; 0 ; 0 ; -1+1.732050807568878î ; -1-1.7320508075688779î ; 2 ]
+#  for Eigenvalue -0.44232308855965813-0.2948714025111036î:
+#    [ -0.5651977173836402+1.0434274358930307î ; -0.8846461771193137-0.5897428050222031î ; 1 ; 0 ; 0 ; 0 ]
+#  for Eigenvalue -0.44232308855965813+0.2948714025111036î:
+#    [ -0.5651977173836402-1.0434274358930307î ; -0.8846461771193137+0.5897428050222031î ; 1 ; 0 ; 0 ; 0 ]
+#  for Eigenvalue 0.8846461771193158:
+#    [ 2.130395434767278 ; 1.7692923542386312 ; 1 ; 0 ; 0 ; 0 ]
+#  for Eigenvalue 1:
+#    [ 36 ; 30 ; 18 ; 1 ; 1 ; 1 ]
+# 
+

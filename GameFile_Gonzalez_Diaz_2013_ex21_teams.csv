@@ -1,0 +1,9 @@
+;Paired comparisons analysis: an axiomatic approach to ranking methods;Gonzalez-Diaz, 2013
+;Game file example 2.1 fair bets;
+;fb = c(125, 30, 1)
+Pl;Name;rd1;rd2;rd3
+1;Player 1;2w4;3w5;
+2;Player 2;1b1;;3w25
+3;Player 3;;1b0;2w1
+#
+# In grsm.r, elon <- (npls-1) * nrrr;

@@ -1,20 +1,27 @@
+# Fairbets.r
 # Run gf.r first to process input
-# compute fair bets tiebreak
-# power iteration A / losses
+# Principle eigenvector and fairbets ranking.
+# Volij, Slutzki, Marco Slikker · Peter Borm · René van den Brink
+# Scoring of web pages and tournaments—axiomatizations, Slutzki Volij
+# http://volij.co.il/publications/papers/tourna3.pdf
+#
 # Paired comparisons analysis:  an axiomatic approach to ranking methods
 # http://eio.usc.es/pub/julio/papers/15._Paired_comparisons_analysis-_an_axiomatic_approach_to_rankings_in_tournaments_web.pdf
 #
-# calculation by poweriteration of the fair bets matrix
-# if the fb matrix is irreducible then the Perron-Frobenius eigenvector is calculated
-# if the fb matrix is reducible and a non-periodic then
-# the result of the calculation is the probability of being in an absorbing state (Markov chain application)
-# if the fb matrix is periodic, the calculation does not converge
+# Limiting behaviour of Markov Chains - Cross Validated.
+# MIT Open Courseware, Discrete Stochastic Processes, chapetr 3
+# https://ocw.mit.edu/courses/6-262-discrete-stochastic-processes-spring-2011/pages/course-notes/
 #
-# Volij, Slutzki, Marco Slikker · Peter Borm · René van den Brink
-# Scoring of web pages and tournaments—axiomatizations, Slutzki Volij
+# Calculation by poweriteration of the game matrix
+# s1 = A.1, s2 = A.s1, sk = A.sk-1, ...
+# It folows from the Perron-Frobenius theorem that in case of indivisible profiles,
+# the normalized sequence (sk) converges to the principal eigenvector.
+# If the fb matrix is reducible and a non-periodic then
+# the result of the calculation is the probability of being in an absorbing state.
+# If the fb matrix is periodic, the iteration does not converge.
 #--------------------------------------------------------------------
 
-cat('\n', "----------------------------- faitbets.r", "pefbev", exists("pefbev"), '\n')
+cat('\n', "----------------------------- fairbets.r", "pefbev", exists("pefbev"), '\n')
 cat("\n",ifelse(exists("pefbev"),"Perron Frobenius eigenvector","Fairbets") ,"\n")
 
 # pefbev <- 1L                                      # test Perron eigenvector
@@ -28,14 +35,14 @@ fb[apply(is.na(opponents), 1, all)] <- NA           # remove isolates, no oppone
 mask_SCC  <- fb[c(opponents)]                       # set excluded opponents to NA
 mask_SCC  <- mask_SCC + fb[,1]                      # set opponents of excluded players to NA
 dim(mask_SCC) <- dim(opponents)                     # restore matrix (n x r)
-
 fb <- fb + 1
-pts_ag <- rowSums(t.sparse(gfile + mask_SCC, opponents), na.rm=TRUE) + 1 # points against, sum of col(gfile), incl game against self of player
-if (exists("pefbev") && pefbev == 1) pts_ag[] <- 1
-                        
-fbfile <- (gfile + mask_SCC) / pts_ag               # A / losses, losses = sum col(A), indexed by player(n x r) 
 
-                                                    # force vectorize, 2 column matrix gives error
+# Fairbets ranking is invariant under adding win and loss points equally to a player
+pts_ag <- rowSums(t.sparse(gfile + mask_SCC, opponents), na.rm=TRUE) + 1 # points against, sum of col(gfile), incl game against self
+
+if (exists("pefbev") && pefbev == 1) pts_ag[] <- 1  # Eigen vector 
+                       
+fbfile <- (gfile + mask_SCC) / pts_ag               # A / losses, losses = sum col(A), indexed by player(n x r) 
 
 iterations <- fb                                    # store iterations, one column for each iteration step
 convergence <- c(NA)                                # concatenate missing value ( n x it. steps)
@@ -43,7 +50,7 @@ convergence <- c(NA)                                # concatenate missing value 
 # iterate until fb is stable ---------------------
 npls <- nrow(opponents)
 
-maxit <- npls + 20L
+maxit <- max(npls * npls, 100L)
 steptol <- (1e-4 / 3) / npls                        # change in diff after <<<four>>> decimals
 it <- 0L
 
@@ -54,10 +61,10 @@ while ((it <- it+1L) < maxit) {
   fbm = fb[c(opponents)]                            # rating of opponents  (n x r) for debugging
   dim(fbm) = dim(opponents)                         # restore matrix
 
-  # (Gf/L).fb, sparse matrix/vector multiplication
-  # add I / losses, for speed up, avoid division by zero  
-  fbn <- rowSums(fbfile * fb[c(opponents)], na.rm = TRUE) + fb / pts_ag # matrix multiplication inc. diag                                                                                           
-  fbn <- fbn / sum(fbn, na.rm=TRUE)                 # stochastic vector (sum=1), ignore missing values
+  # ((Gf + I)/L).fb, sparse matrix/vector multiplication
+  # add I for speed up, avoid division by zero  
+  fbn <- rowSums(fbfile * fb[as.vector(opponents)], na.rm = TRUE) + (1/pts_ag)*fb # matrix multiplication + point by self
+  fbn <- fbn / sum(fbn, na.rm=TRUE)                 # normalize by sum
   
   if (min(fbn == 0, na.rm = TRUE) == 1) break       # All zeros, this is going to repeat itself
   
@@ -89,9 +96,10 @@ cat(sprintf("SD x-Diff / x_tol : %5.2g, %5.2g\n", sd(diff, na.rm=TRUE), steptol)
 if (!exists("report_tpr")) {
 cat("", sep="\n"); print("Fair bets / Pev"); print(zapsmall(fb, digits = 4))
 cat("", sep="\n"); print("Fb / Pev iterations"); print(iterations, digits = 4)
-if (it >= maxit) print("Maximum number of iteration reached.")
 }
-cat("Convergence FB", sep="\n"); print(c(convergence), digits = 4)
+cat("Convergence FB", sep="\n"); print(c(convergence), digits = 5)
+if (it <  maxit) cat("Convergence reached\n")
+if (it >= maxit) cat(sprintf(">>> No convergence, steptol = %5.2g, difference = %5.2g, it = %d, maxit = %d\n" , steptol, sd_diff, it, maxit )) 
 print(stime)
 
 # plot fair bet main SCC
