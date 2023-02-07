@@ -10,6 +10,7 @@
 #   2023-jan-10, calculation of Par corrected.
 #   2023-jan-23, tidy source.
 #   2023-jan-31, avoid 2-column matrix when indexing matrix
+#   2023-feb-07, correct laplacian calculation
 #
 #   CSV, Comma Separated Values (RFC 4180)
 #   remove manually "=" from ="0" (excel)
@@ -235,6 +236,8 @@ gfile <- as.numeric(gfile)                          # game file
 dim(gfile) <- dim(opponents)
 dimnames(gfile) <- dimnames(opponents)
 
+Par     <- max(gfile + t.sparse(gfile, opponents), na.rm=TRUE); # max score range
+names(Par) = "Maximal win score (1=chess, 2=draughts, 3 = football)"; Par
 points = matrix(rowSums(gfile, na.rm = TRUE))       # points
 bhlz <- rowSums(matrix(points[as.vector(opponents)], nrow(points)), na.rm=TRUE) # Buchholz, Weerstand
 SB   <- rowSums(gfile * points[as.vector(opponents)], na.rm=TRUE) # Sonneborg-Berger, Neustadtl
@@ -244,8 +247,6 @@ raticol <- which(regexpr("^([Rr]a?ti?n?g$|FMJD|APRO)$", trimws(names(rdtable))) 
 aor <- rowMeans(matrix(as.numeric(rdtable[,raticol][opponents]), nrow(rdtable)), na.rm=TRUE) #average opponent rtg
 
 results <- (gfile - t.sparse(gfile, opponents)) / 2 # skew symmetric results
-Par     <- max(gfile + t.sparse(gfile, opponents), na.rm=TRUE); # max score range
-names(Par) = "Maximal win score (1=chess, 2=draughts, 3 = football)"; Par
 
 wins   = matrix(rowSums(results >  0, na.rm = TRUE))# number of wins
 draws  = matrix(rowSums(results == 0, na.rm = TRUE))# number of draws
@@ -361,12 +362,12 @@ print(qg)
 if (npls < 64)
 try(
 {
-  print(try(system.time(crosstab <- as.matrix(g[]))))
-  laplacian <- -(crosstab + t(crosstab))            # Note, Par = 2. 1-1, 2-0, counts as two games 
+  laplacian <- -as.matrix(as_adj(as.undirected(g))) # Note, number of games
   diag(laplacian) <- -rowSums(laplacian)
   lev <- Mod(eigen(laplacian)$values)               # eigen vector Laplacian
   kappa <- max(lev) / min(lev[lev>1e-5]); names(kappa) = "Kappa matches matrix"; print(kappa)
 
+  print(try(system.time(crosstab <- as.matrix(g[]))))
   crosstab[(as.matrix(g[]) == 0 & t(as.matrix(g[]) == 0))] <- "."
   crosstab <- cbind(rdtable[,gfrmcols],crosstab)
  
@@ -374,7 +375,7 @@ try(
   print(head(crosstab, 20), quote=FALSE) # print first lines of tournament
 
 }, silent = FALSE)
-        
+
 print(sprintf("# spelers = %d, aantal rondes = %d ", npls,  nrds), quotes=FALSE)
 
 edge_density(as.undirected(g, mode = c("collapse")))
