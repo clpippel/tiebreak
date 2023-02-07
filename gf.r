@@ -11,6 +11,7 @@
 #   2023-jan-23, tidy source.
 #   2023-jan-31, avoid 2-column matrix when indexing matrix
 #   2023-feb-07, correct laplacian calculation
+#                SCCs*Players indexed by level corrected
 #
 #   CSV, Comma Separated Values (RFC 4180)
 #   remove manually "=" from ="0" (excel)
@@ -338,21 +339,10 @@ qt <- set_edge_attr(qt, name="weight", value=-1)    # longest path = shortest ne
 dis_SCC <- (-distances(qt, v=(V(qt)), mode="in"))   # matrix of VxV distances of shortest paths
 layers <- apply(dis_SCC, 1, max)                    # max per row
 
-# SCC x level, players in SCC
-# row indexed by SCC-group, ordered by level (>)
-# {
-#    layscc <- cbind(layers, lapply(SCC$groups, paste, collapse=" "))
-#    colnames(layscc)[2] <- "Players"
-#    layscc <- layscc[order(layers, decreasing=FALSE),]
-#    print(layscc, quote=FALSE, right=FALSE)
-#    cat(sprintf("# of SCC's = %d, depth = %d\n", SCC$no, max(layers) ))
-# } 
-
-# Level ---> SCC*Players
-# SCCs divided by comma
+# SCCs*Players indexed by level
 if (SCC$no > 1L)
 print(
-  setNames(aggregate(cbind(lapply(SCC$groups, paste, collapse=" ")), list(layers), paste), c("Level","SCC") )
+  setNames(aggregate(cbind(lapply(groups(SCC), paste, collapse=" ")), list(layers), paste), c("Level","SCC") )
  ,row.names=FALSE
 )
 
@@ -361,10 +351,10 @@ print(qg)
 # create cross matrix nrrr = 1 for overview
 if (npls < 64)
 try(
-{
-  laplacian <- -as.matrix(as_adj(as.undirected(g))) # Note, number of games
-  diag(laplacian) <- -rowSums(laplacian)
-  lev <- Mod(eigen(laplacian)$values)               # eigen vector Laplacian
+{  
+  laplacian <- -table(rep(seq(npls), nrds), c(opponents)) # frequency table of games, including games against self
+  diag(laplacian) <- -rowSums(laplacian, na.rm=TRUE)      # Laplacian matrix, indexed by player
+  lev <- Mod(eigen(laplacian)$values)                     # eigen vector Laplacian
   kappa <- max(lev) / min(lev[lev>1e-5]); names(kappa) = "Kappa matches matrix"; print(kappa)
 
   print(try(system.time(crosstab <- as.matrix(g[]))))
@@ -373,7 +363,7 @@ try(
  
   print("Game results")
   print(head(crosstab, 20), quote=FALSE) # print first lines of tournament
-
+   
 }, silent = FALSE)
 
 print(sprintf("# spelers = %d, aantal rondes = %d ", npls,  nrds), quotes=FALSE)
