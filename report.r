@@ -1,6 +1,7 @@
 # create report of tiebreak methods
 # Run gf.r first to process input
 # 19-01-2023, Colley matrix, Laplace rule of succession
+#  6-02-2023, Recalibrate Lapl
 
 report_tpr <- TRUE									# Signal reporting
 
@@ -29,7 +30,7 @@ ylsq    <- y
 # https://www.colleyrankings.com/matrate.pdf
 LSM <- 2                                            # Colleys matrix, ε = 2
 source('grsm.r', echo=FALSE)
-Lapl <- growsums + Par / 2                          # recalibrate to draw (Colley matrix)
+Lapl <- growsums + Par / 2                          # recalibrate to middle of [0, Par] (Colley matrix)
 elonLapl <- elon
 yLapl    <- y
 
