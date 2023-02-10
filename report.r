@@ -2,12 +2,13 @@
 # Run gf.r first to process input
 # 19-01-2023, Colley matrix, Laplace rule of succession
 #  6-02-2023, Recalibrate Lapl
+# 10-02-2023, Colley Matrix, recalibrate
 
 report_tpr <- TRUE									# Signal reporting
 
 if (exists("LSM")) rm(LSM)
 
-source('nr-lin.r', echo=FALSE, print=TRUE)          # relative AVG ratings, newton iteration
+source('nr-lin.r', echo=FALSE)                      # relative AVG ratings, newton iteration
 avg400  <- rrtg                                     # P(x) = ½ + avg400 / 800   ; AVG400 probability
 
 source('nr.r', echo=FALSE)                          # relative Elo ratings, newton iteration
@@ -18,7 +19,7 @@ colnames(grs) <- paste0("grs", elon)
 elongrs <- elon
 ygrs    <- y                                        # P(x) = ½ + grs / ygrs / par * 2; grs probability
 
-source('recursive-bhz.r', echo=FALSE, print=TRUE)   # Recursive Buchholz
+source('recursive-bhz.r', echo=FALSE)               # Recursive Buchholz
 
 LSM <- 0                                            # Least Square Ratings, add LSM to diagonal Laplacian matrix
 source('grsm.r', echo=FALSE)
@@ -26,13 +27,13 @@ lsq     <- growsums                                 # P(x) = ½ + lsq / par / 2 
 elonlsq <- elon
 ylsq    <- y
 
-# https://en.wikipedia.org/wiki/Rule_of_succession  # Laplace: (s + n) / N + 2)
+# https://en.wikipedia.org/wiki/Rule_of_succession  # Laplace: (1 + successes) / (N + 2)
 # https://www.colleyrankings.com/matrate.pdf
-LSM <- 2                                            # Colleys matrix, ε = 2
+LSM <- 2;                                           # Colleys matrix, ε = 2
 source('grsm.r', echo=FALSE)
-Lapl <- growsums + Par / 2                          # recalibrate to middle of [0, Par] (Colley matrix)
+Lapl <- growsums + Par / elon                       # Note: s + Par is equivalent to ratings + Par / ε
 elonLapl <- elon
-yLapl    <- y
+yLapl    <- y 
 
 colnames(Lapl)   <- "Lapl"
 colnames(avg400) <- "A400"
@@ -41,11 +42,11 @@ colnames(lsq)    <- "lsq"
 stopifnot( sd(avg400 - (lsq/Par)*800, na.rm = TRUE) < 1E5) # lsq ~ AVG400
 
 pefbev <- 1                                          # Perron Frobenius (principle) eigen vector
-source('fairbets.r', echo=FALSE, print=TRUE)
+source('fairbets.r', echo=FALSE)
 pev <- fb * sum(points)                             # https://www.arndt-bruenner.de/mathe/scripts/engl_eigenwert2.htm
 
 rm(pefbev)                                          # fair bets
-source('fairbets.r', echo=FALSE, print=TRUE)
+source('fairbets.r', echo=FALSE)
 fbpts <- fb * sum(points)                           # normalize by all points (ping-pong model (Volij)
 
 frk <- seq_len(npls)                                # final rank

@@ -1,10 +1,19 @@
 ;Colley matrix
 ;https://www.colleyrankings.com/matrate.pdf
 ;0.4130;0.5217;0.500;0.4783;0.5870; mean = Par /2
-c(19, 24, 23, 22, 27)/46; arndt-bruenner.de
+;x = c(19, 24, 23, 22, 27)/46; arndt-bruenner.de
 Pos;Naam;1;2;3;4;5
 1;a;bye;2w.;3z1;4w0;5z0
 2;b;5w1;1z.;bye;3w0;4z.
 3;c;4w1;5z0;1w0;2z1;bye
 4;d;3z0;bye;5w.;1z1;2w.
 5;e;2z0;3w1;4z.;bye;1w1
+# L.x = s, for Colley matrix rankings x
+# s = ΣRes + Par
+# Laplacian
+# 1  2  3  4  5  s
+# 5  0 -1 -1 -1 1/2
+# 0  4 -1  0 -1 1
+#-1 -1  6 -1 -1 1
+#-1  0 -1  4  0 1
+#-1 -1 -1  0  5 3/2

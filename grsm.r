@@ -22,6 +22,7 @@
 # terminology in:
 # https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.newton_krylov.html#scipy.optimize.newton_krylov
 # 19-01-2023, LSM naar elon
+# 10-02-2023, ys
 
 maxlines = 500                                      # max players to print
 
@@ -67,14 +68,14 @@ cg.solve  <- function(A, Adiag, b, reltol=NULL) {
 stopifnot(npls > 1)                                 # two players
 #----------------------------------------------------
 nrrr = max(unlist(apply(opponents,1, table)))       # (m) number of round robin rounds (max same opponent)
-s = matrix(rowSums(results, na.rm=TRUE))            # saldo wins and losses, skew symmetric score
+s    = matrix(rowSums(results, na.rm=TRUE))         # saldo wins and losses, skew symmetric score
 growsums <- matrix(0, nrow(opponents), 1)           # Generalized Row Sums
 
 if (exists("LSM")) {                                # choose LSM or GRS
     elon <- LSM; y <- 1 ;                           # ε = 0, γ = scale factor
 } else {
     elon <- (npls-2) * nrrr;                        # elon = round(log(npls)), approx Elo
-	elon <- (npls-1) * nrrr;                        # cheb 1989 example 1
+	# elon <- (npls-1) * nrrr;                      # cheb 1989 example 1
     y    <- elon + npls * nrrr;                     # GRS: y = ε' + m.n,  well chosen: ε' ≥ n.m - 2 (Gonzalez-Diaz) 
 }
 
@@ -88,12 +89,12 @@ if (exists("LSM")) {                                # choose LSM or GRS
 # ---------------------------------------------------
 Lmat     <- (-!is.na(opponents)) * 1                # Gamefile: Match matrix M = 1
 Ldiag <- -rowSums(Lmat) + elon                      # diag(L) + e'.I
-kappa = max(Ldiag) / min(Ldiag[Ldiag[]>0])          # λmax /  λmin 
+kappa = max(Ldiag) / min(Ldiag[Ldiag[] >0 ])        # λmax /  λmin 
 cg_th <- round(sqrt(kappa) * log(2 / sqrt(.Machine$double.eps) ) / 2 +0.5)  # rate of convergence CG method
 
-res    <- y * s
+ys <- y * s                                         # intercept
 cgcum <- 0                                          # statistics
-growsums <- cg.solve(Lmat, Ldiag, res)              # solve lineair equation
+growsums <- cg.solve(Lmat, Ldiag, ys)               # solve lineair equation
 # ---------------------------------------------------
 
 {
@@ -104,7 +105,7 @@ message(sprintf("e' = %a, y = %a, n = %d, RR-rounds = %d", elon, y, npls, nrrr) 
 x <- growsums
 Ax <- rowSums(Lmat * x[as.vector(opponents)], na.rm = TRUE) # A.x
 Ax <- Ax + Ldiag * x								# sparse matrix multiplication
-res <- Ax - y*s										# A.x - y.s
+res <- Ax - ys 										# A.x - y.s
 
 cat("\nValidate grsm solution\n")
 cat(sprintf("L2 Residual   = %5.2g\n" , sqrt(sum(res*res)) )) # Euclidean norm L2
@@ -140,7 +141,7 @@ mask_rmax  <- ifelse(results == rmax, 0, NA)        # wins, maximal win, win / l
 }
 
 # show rank, ratings
-rkgrs <- cbind(rank(-growsums), growsums)
+rkgrs <- cbind(rank(-growsums, ties.method= "min"), growsums)
 colnames(rkgrs) <- c("Rk", ifelse(exists("LSM"), "LSSums", "GRSums"))
 { 
 cat(sprintf("GRS parameters: e=%.2f, y=%.2f\n", elon, y))
