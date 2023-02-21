@@ -154,7 +154,9 @@ try({
 lytgrs     <- layout_with_fr(g)
 # lytgrs     <- layout.circle(g)
 lytgrs[,2] <- growsums
-plot(g, layout=lytgrs, main = paste0("SCCs with ", ifelse(exists("LSM"),"LSM", "GRS"), " layout") )
+plot(g, layout=lytgrs, 
+        main  = paste0("SCCs with ", ifelse(exists("LSM"),ifelse(LSM==2,"Laplace", "LSM"), "GRS"), " layout")
+)
 })
 
 growsums[which(apply(is.na(opponents), 1, all))] <- NA    # remove isolates <<<<<<
