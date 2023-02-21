@@ -12,6 +12,7 @@
 #   2023-jan-31, avoid 2-column matrix when indexing matrix.
 #   2023-feb-07, correct laplacian calculation.
 #   2023-feb-21, SCCs*Players indexed by level simplified by data.frame.
+#                Set working directory using R_USER
 #
 #   CSV, Comma Separated Values (RFC 4180)
 #   remove manually "=" from ="0" (excel)
@@ -81,12 +82,10 @@
 # remove.packages(pkgs, lib)     # remove package
 # 
 
+setwd(paste0(Sys.getenv("R_USER"), "/Work"))        # set working directory
 cat(rm(list = ls()))                                # remove all objects
 if (!require(igraph)) q()                           # install.packages("igraph") or use menu
 igraph_version()                                    # igraph version
-options(error=traceback)
-setwd("d:\\Users\\clpip\\Documents\\Work")          # set working directory
-cat("\014")                                         # clear console
 sessionInfo()
 
 # ----------------------------------------------------
