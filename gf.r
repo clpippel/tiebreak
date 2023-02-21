@@ -1,5 +1,5 @@
 # gf.r
-# Read game file, create tables to calculate rankings.
+# Read game file, make tables to calculate rankings.
 # Unlicense (Ø) 2021 CLP, IJmuiden
 # Hieke Hylkema (Lin Yutan):
 # - Een goede reiziger weet niet waar hij naar toe gaat.
@@ -9,9 +9,9 @@
 #   2022-aug-14, handling of nonexisting opponents improved.
 #   2023-jan-10, calculation of Par corrected.
 #   2023-jan-23, tidy source.
-#   2023-jan-31, avoid 2-column matrix when indexing matrix
-#   2023-feb-07, correct laplacian calculation
-#                SCCs*Players indexed by level corrected
+#   2023-jan-31, avoid 2-column matrix when indexing matrix.
+#   2023-feb-07, correct laplacian calculation.
+#   2023-feb-21, SCCs*Players indexed by level simplified by data.frame.
 #
 #   CSV, Comma Separated Values (RFC 4180)
 #   remove manually "=" from ="0" (excel)
@@ -341,11 +341,7 @@ layers <- apply(dis_SCC, 1, max)                    # max per row
 
 # SCCs*Players indexed by level
 if (SCC$no > 1L)
-print(
-  setNames(aggregate(cbind(lapply(groups(SCC), paste, collapse=" ")), list(layers), paste), c("Level","SCC") )
- ,row.names=FALSE
-)
-
+  print(data.frame(layers, SCC=groups(SCC)))
 print(qg)
 
 # create cross matrix nrrr = 1 for overview
