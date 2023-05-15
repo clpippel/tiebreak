@@ -29,7 +29,7 @@ ylsq    <- y
 
 # https://en.wikipedia.org/wiki/Rule_of_succession  # Laplace: (1 + successes) / (N + 2)
 # https://www.colleyrankings.com/matrate.pdf
-LSM <- 2;                                           # Colleys matrix, ε = 2
+LSM <- 3;                                           # Colleys matrix, ε = 3, three outcomes: 0, 1, 2
 source('grsm.r', echo=FALSE)
 Lapl <- growsums + Par / elon                       # Note: s + Par is equivalent to ratings + Par / ε
 elonLapl <- elon
@@ -43,13 +43,13 @@ stopifnot( sd(avg400 - (lsq/Par)*800, na.rm = TRUE) < 1E5) # lsq ~ AVG400
 
 pefbev <- 1                                          # Perron Frobenius (principle) eigen vector
 source('fairbets.r', echo=FALSE)
-pev <- fb * sum(points)                             # https://www.arndt-bruenner.de/mathe/scripts/engl_eigenwert2.htm
+pev <- fb * sum(points)                              # https://www.arndt-bruenner.de/mathe/scripts/engl_eigenwert2.htm
 
-rm(pefbev)                                          # fair bets
+rm(pefbev)                                           # fair bets
 source('fairbets.r', echo=FALSE)
-fbpts <- fb * sum(points)                           # normalize by all points (ping-pong model (Volij)
+fbpts <- fb * sum(points)                            # normalize by all points (ping-pong model (Volij)
 
-frk <- seq_len(npls)                                # final rank
+frk <- seq_len(npls)                                 # final rank
 rank1 <- matrix(rank(-lsq   , ties.method= "min")); colnames(rank1) <- "  Rk"
 rank2 <- matrix(rank(-rbhz,   ties.method= "min")); colnames(rank2) <- "  Rk"
 rank3 <- matrix(rank(-avg400, ties.method= "min")); colnames(rank3) <- "  Rk"
@@ -83,8 +83,9 @@ report5 <- matrix(round(Lapl  ,3)); colnames(report5) <- "Lapl"
 report6 <- matrix(round(grs   ,3)); colnames(report6) <- paste0("grs",elongrs)
 report7 <- matrix(round(pev   ,3)); colnames(report7) <- "Pev"
 report8 <- matrix(round(fbpts ,3)); colnames(report8) <- "f-bets"
-score   <- apply(as.character(as.hexmode(cbind(rank1, rank2, rank3, rank4, rank5, rank6, rank7, rank8)), width=1), 1, paste, collapse="") #drop 3,4 
-score   <- ifelse(nchar(score) > min(nchar(score)), "", score) # single digit ranks
+rrr     <- cbind(rank1, rank2, rank3, rank4, rank5, rank6, rank7, rank8)  #drop 3,4
+score   <- apply(matrix(format(as.hexmode(rrr), width=1), nrow=npls),1, paste, collapse=""); rm(rrr)
+score   <- ifelse(nchar(score) > min(nchar(score)), "", score) # single hex digit  ranks
 report  <- cbind(rdtable[,gfrmcols]
                 , N, wins, draws, points, s, W, round(pctW, 2)
                 , rank1, report1, rank2, report2, rank3, report3, rank4, report4, rank5, report5, rank6, report6, rank7, report7, rank8, report8, score)
