@@ -3,6 +3,7 @@
 # 19-01-2023, Colley matrix, Laplace rule of succession
 #  6-02-2023, Recalibrate Lapl
 # 10-02-2023, Colley Matrix, recalibrate
+# 15-05-2023, score calculation corrected for R3.0.0
 
 report_tpr <- TRUE									# Signal reporting
 
@@ -84,7 +85,7 @@ report6 <- matrix(round(grs   ,3)); colnames(report6) <- paste0("grs",elongrs)
 report7 <- matrix(round(pev   ,3)); colnames(report7) <- "Pev"
 report8 <- matrix(round(fbpts ,3)); colnames(report8) <- "f-bets"
 rrr     <- cbind(rank1, rank2, rank3, rank4, rank5, rank6, rank7, rank8)  #drop 3,4
-score   <- apply(matrix(format(as.hexmode(rrr), width=1), nrow=npls),1, paste, collapse=""); rm(rrr)
+score   <- apply(format(as.hexmode(rrr), width=1),1, paste, collapse=""); rm(rrr)
 score   <- ifelse(nchar(score) > min(nchar(score)), "", score) # single hex digit  ranks
 report  <- cbind(rdtable[,gfrmcols]
                 , N, wins, draws, points, s, W, round(pctW, 2)
