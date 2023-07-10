@@ -30,9 +30,9 @@ ylsq    <- y
 
 # https://en.wikipedia.org/wiki/Rule_of_succession  # Laplace: (1 + successes) / (N + 2)
 # https://www.colleyrankings.com/matrate.pdf
-LSM <- 3;                                           # Colleys matrix, ε = 3, three outcomes: 0, 1, 2
+LSM <- 2;                                           # Colleys matrix, ε = 3, three outcomes: 0, 1, 2
 source('grsm.r', echo=FALSE)
-Lapl <- growsums + Par / elon                       # Note: s + Par is equivalent to ratings + Par / ε
+Lapl <- growsums + Par / 2                          # Note: move from skew symmetric to range [0, Par]
 elonLapl <- elon
 yLapl    <- y 
 
