@@ -99,7 +99,7 @@ growsums <- cg.solve(Lmat, Ldiag, ys)               # solve lineair equation
 
 {
 message("Solve: x | (e'.I + L)x = y.s where y = e'+ n.m, L = Laplacian of game graph")
-message(sprintf("e' = %a, y = %a, n = %d, RR-rounds = %d", elon, y, npls, nrrr) )  
+message(sprintf("e' = %d, y = %d, n = %d, RR-rounds = %d", elon, y, npls, nrrr) )  
 
 # validate solution
 x <- growsums
