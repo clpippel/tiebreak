@@ -25,8 +25,7 @@
 # 10-02-2023, ys
 
 maxlines = 500                                      # max players to print
-
-cat( '\n', paste("----------------------------- grsm.r", "LSM", exists("LSM"), sep=", "), '\n' )
+cat("----------------------------- grsm.r", ", grspar = ", if(exists("grspar")) grspar else "*" , '\n')
 
 cg.solve  <- function(A, Adiag, b, reltol=NULL) {
   # Conjugate gradient method
@@ -71,10 +70,11 @@ nrrr = max(unlist(apply(opponents,1, table)))       # (m) number of round robin 
 s    = matrix(rowSums(results, na.rm=TRUE))         # saldo wins and losses, skew symmetric score
 growsums <- matrix(0, nrow(opponents), 1)           # Generalized Row Sums
 
-if (exists("LSM")) {                                # choose LSM or GRS
-    elon <- LSM; y <- 1 ;                           # ε = 0, γ = scale factor
+if (exists("grspar")) {                             # choose LSM (ε=0, γ=scale factor) or GRS
+    elon <- grspar[1];
+    y    <- ifelse(length(grspar)<= 1,1,grspar[2])  # default y = 1
 } else {
-    elon <- (npls-2) * nrrr;                        # elon = round(log(npls)), approx Elo
+      elon <- (npls-2) * nrrr;                        # elon = round(log(npls)), approx Elo
 	# elon <- (npls-1) * nrrr;                      # cheb 1989 example 1
     y    <- elon + npls * nrrr;                     # GRS: y = ε' + m.n,  well chosen: ε' ≥ n.m - 2 (Gonzalez-Diaz) 
 }
