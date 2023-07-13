@@ -22,7 +22,7 @@ ygrs    <- y                                        # P(x) = ½ + grs / ygrs / p
 
 source('recursive-bhz.r', echo=FALSE)               # Recursive Buchholz
 
-LSM <- 0                                            # Least Square Ratings, add LSM to diagonal Laplacian matrix
+grspar <- 0                                         # Least Square Ratings, add LSM to diagonal Laplacian matrix
 source('grsm.r', echo=FALSE)
 lsq     <- growsums                                 # P(x) = ½ + lsq / par / 2  ; lsq probability
 elonlsq <- elon
@@ -30,7 +30,7 @@ ylsq    <- y
 
 # https://en.wikipedia.org/wiki/Rule_of_succession  # Laplace: (1 + successes) / (N + 2)
 # https://www.colleyrankings.com/matrate.pdf
-LSM <- 2;                                           # Colleys matrix, ε = 3, three outcomes: 0, 1, 2
+grspar = 2;                                         # Colleys matrix, ε = 3, three outcomes: 0, 1, 2
 source('grsm.r', echo=FALSE)
 Lapl <- growsums + Par / 2                          # Note: move from skew symmetric to range [0, Par]
 elonLapl <- elon
@@ -115,7 +115,7 @@ cat(sprintf("grs  : e'= %2d, y = %d (= e' + n.m)", elongrs, ygrs), crlf, crlf)
 
 print(report, quote=FALSE, row.names = FALSE, , na.print = ".", max=200*ncol(report))
 }
-rm(LSM)
+rm(grspar)
 rm(report_tpr)
 
 cat(crlf)
