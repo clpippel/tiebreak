@@ -1,0 +1,28 @@
+Trainingsvierkamp Harm Wiersma Huizum 2005 (Blitz) -  - Hoofdklasse                         
+Game file after Round 6 - 2005-09-08;https://laatste.info/bb3/viewtopic.php?f=65&t=8141&start=15#p126874
+ε = 8, y = 16;grs = c(3.428571,1.000000,-1.000000,-3.428571)                     
+Pl;Name                  ;  1;  2;  3;  4;  5;  6
+1; Harm Wiersma          ;4w2;3w2;2w0;4b+;3b2;2b2
+2; Rein van der Pal      ;3b0;4w1;1b2;3w2;4b2;1w0
+3; Tjalling van den Bosch;2w2;1b0;4b2;2b0;1w0;4w1
+4; Jan Adema             ;1b0;2b1;3w0;1w-;2w0;3b1
+#
+#                S1  S2  S3  S4     s            M            Mi            L               GRS 
+#              +----------------+ +--+   +----------------+  +--+   +----------------+    +-------+
+#Wiersma       | xx  02  22  2. | | 3|   |   0   2   2   1|  | 5|   |   5  -2  -2  -1|    | 3,429 |
+#van der Pal   | 20  xx  02  12 | | 1|   |   2   0   2   2|  | 6|   |   2   6  -2  -2|    | 1,000 |
+#van den Bosch | 00  20  xx  21 | |-1|   |   2   2   0   2|  | 6|   |  -2  -2   6  -2|    | 1,000 |
+#Adema         | 0.  10  01  xx | |-3|   |   1   2   2   0|  | 5|   |  -1  -2  -2   5|    |-3,429 |
+#              +----------------+ +--+   +----------------+  +--+   +----------------+    +-------+
+#                   Uitslagen     score  Verbindingsmatrix    Gms        Laplacian          Rating
+#
+#Eén winstpartij van Harm tegen Jan Adema heb ik weggelaten. De "row sum" van een speler is gelijk aan zijn scheef symmetrische score s, in damtermen de plusscore. Er ontbreekt één parij tussen S1 en S4 om een compleet rondtoernooi te maken.
+#
+#Het idee van GRS methode is om de ontbrekende uitslagen te vervangen door de verwachte uitslagen.
+#De verwachte uitslag E14 van één partij tussen S1 en S4 is gelijk is aan:
+#
+#    (x1 - x4) / γ .
+#
+#In dit voorbeeld is ε' = 8 een positieve parameter ≥ n.m - 2. En γ = n.m + ε' is gelijk aan 16.
+#We kiezen de GRS-ratings zodanig dat de GRS-rating gelijk is aan de score en daarbij opgeteld alle verwachte uitslagen.
+#https://damforum.nl/bb3/viewtopic.php?f=65&t=8141&start=15#p126874
