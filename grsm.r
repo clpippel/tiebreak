@@ -70,12 +70,19 @@ nrrr = max(unlist(apply(opponents,1, table)))       # (m) number of round robin 
 s    = matrix(rowSums(results, na.rm=TRUE))         # saldo wins and losses, skew symmetric score
 growsums <- matrix(0, nrow(opponents), 1)           # Generalized Row Sums
 
-if (exists("grspar")) {                             # choose LSM (ε=0, γ=scale factor) or GRS
-    elon <- grspar[1];
-    y    <- ifelse(length(grspar)<= 1,1,grspar[2])  # default y = 1
+## choose lsm when ε = 0, otherwise grs.
+## γ = scale factor.
+if (exists("grspar") && length(grspar) > 0) {
+    elon <- grspar[1]
+	if (length(grspar) > 1) y <- grspar[2]
+	else {
+	  if (elon == 0)                     y <- 1      # LSM, least squares
+      else if (npls <= 2)                y <- 1      # grs requires more then two players
+	  else if ( elon < (npls-2) * nrrr ) y <- 1      # grs, not well formed, y is scale factor
+	  else                               y <- elon + npls * nrrr;    
+    }	
 } else {
-      elon <- (npls-2) * nrrr;                        # elon = round(log(npls)), approx Elo
-	# elon <- (npls-1) * nrrr;                      # cheb 1989 example 1
+    elon <- (npls-2) * nrrr;                        # elon = round(log(npls)), approx Elo
     y    <- elon + npls * nrrr;                     # GRS: y = ε' + m.n,  well chosen: ε' ≥ n.m - 2 (Gonzalez-Diaz) 
 }
 
