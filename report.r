@@ -7,13 +7,12 @@
 
 report_tpr <- TRUE									# Signal reporting
 
-if (exists("LSM")) rm(LSM)
-
 source('nr-lin.r', echo=FALSE)                      # relative AVG ratings, newton iteration
 avg400  <- rrtg                                     # P(x) = ½ + avg400 / 800   ; AVG400 probability
 
 source('nr.r', echo=FALSE)                          # relative Elo ratings, newton iteration
 
+grspar <- c()                            
 source('grsm.r', echo=FALSE)                        # Generalised Row Sum Ratings
 grs     <- growsums
 colnames(grs) <- paste0("grs", elon)
@@ -30,7 +29,7 @@ ylsq    <- y
 
 # https://en.wikipedia.org/wiki/Rule_of_succession  # Laplace: (1 + successes) / (N + 2)
 # https://www.colleyrankings.com/matrate.pdf
-grspar = 2;                                         # Colleys matrix, ε = 3, three outcomes: 0, 1, 2
+grspar = c(2, 1);                                   # Colleys matrix, ε = 3, three outcomes: 0, 1, 2
 source('grsm.r', echo=FALSE)
 Lapl <- growsums + Par / 2                          # Note: move from skew symmetric to range [0, Par]
 elonLapl <- elon
