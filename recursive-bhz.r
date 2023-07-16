@@ -48,8 +48,9 @@ while ((it <- it+1) <= maxit) {                     # a loop might occur when bi
   xn_diff <- max(abs(diff), na.rm=TRUE)             # max norm
   convergence <- cbind(convergence, xn_diff )       # append to convergence
 
-  if ( all(rb.new == 0L, na.rm = TRUE) ) break      # All zeros, this is going to repeat itself 
   rbhz <- rb.new                                    # next rbhz approximation
+  if ( all(rbhz == 0L, na.rm = TRUE) ) break        # All zeros, this is going to repeat itself 
+
 
   if (xn_diff < steptol) break                      # change in rating below limit
   if (it %% 100 == 0) cat(sprintf("Progress = %d, sd(diff) = %7.4g\n", it, xn_diff))
