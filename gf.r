@@ -75,6 +75,7 @@
 # https://stackoverflow.com/questions/22432344/how-do-you-change-the-default-directory-in-rstudio-or-r
 # setwd("d:\\Users\\username\\Documents\\Work")
 # clear workspace (ctrl L), attach library and set working directory
+# remove.packages('igraph')
 # install.packages('igraph')
 # lsf.str("package:base")        # Apply lsf.str function
 # ls("package:igraph")           # Apply lsf.str function
@@ -240,6 +241,7 @@ Par     <- max(gfile + t.sparse(gfile, opponents), na.rm=TRUE); # max score rang
 names(Par) = "Maximal win score (1=chess, 2=draughts, 3 = football)"; Par
 points = matrix(rowSums(gfile, na.rm = TRUE))       # points
 bhlz <- rowSums(matrix(points[as.vector(opponents)], nrow(points)), na.rm=TRUE) # Buchholz, Weerstand
+bhzp <- rowSums(matrix(  bhlz[as.vector(opponents)], nrow(points)), na.rm=TRUE) # Solkoff plus
 SB   <- rowSums(gfile * points[as.vector(opponents)], na.rm=TRUE) # Sonneborg-Berger, Neustadtl
 FB   <- SB / rowSums(t.sparse(gfile, opponents), na.rm=TRUE)      # Fairbets first iteration
 
