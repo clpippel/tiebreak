@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------------
 # nr.nr
-# calculate relative ratings (x) as roots of We(x) - W = 0
+# calculate relative ratings (x) as roots of We(x) - W
 # root finding with Newton Raphson
 # compute ratings of most frequent SCC
 # re-calibrate ratings such that minimum rating = 1 (Sevilla)
@@ -25,7 +25,8 @@ dPr <- function(x) {e <- Pr(x); return(e * (1-e))}  # derivative
 # Par = max(∀ plusscore - minscore)
 # ------------------------------------------------------
 We_min_W <- function(x) {
-  dpopp <- x[,1] - x[as.vector(opponents)]; dim(dpopp) = dim(opponents)          
+  dpopp <- x[,1] - x[as.vector(opponents)];         # difference between own rating, opponent rating
+  dim(dpopp) = dim(opponents)                       # indexed by player, round         
 
   Jf     <<- -dPr(dpopp / celo) * Par               # Jacobian opponents: Jf(x) = δfi/δxk, k != i (global assign)
   Jfdiag <<- -rowSums(Jf, na.rm = TRUE)             # Gradient (diag):    Jf(x) = δfi/δxi, Sum(Jf) == 0
