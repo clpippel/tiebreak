@@ -6,7 +6,7 @@
 # - Een uitstekende reiziger weet niet waar hij vandaan komt.
 #
 #   2022-aug-14, SCC, make_cluster.
-#   2022-aug-14, handling of nonexisting opponents improved.
+#   2022-aug-14, handling of nonexisting opponents improved.  
 #   2023-jan-10, calculation of Par corrected.
 #   2023-jan-23, tidy source.
 #   2023-jan-31, avoid 2-column matrix when indexing matrix.
@@ -85,7 +85,7 @@
 
 setwd(paste0(Sys.getenv("R_USER"), "/Work"))        # set working directory
 cat(rm(list = ls()))                                # remove all objects
-if (!require(igraph)) q()                           # install.packages("igraph") or use menu
+if (!require(igraph)) install.packages('igraph')    # install.packages("igraph") or use menu
 igraph_version()                                    # igraph version
 sessionInfo()
 
@@ -151,7 +151,8 @@ fcon <- file(fcsv, "r")                             # open connection to read in
 # "ronde dossier" or game file (npls x nrds),  
 rdtable <- read.csv(fcon                            # read game file (n x r)
                    ,header = FALSE
-                   ,sep=";", dec=",", strip.white=TRUE, blank.lines.skip = TRUE
+                   ,sep =";", dec=",", strip.white=TRUE, blank.lines.skip = TRUE
+                   ,quote = ""
                    ,comment.char = "#"
                    ,stringsAsFactors=FALSE
                    ,encoding = "UTF-8"              # Sevilla = UTF-8, W10 = ANSI
@@ -266,7 +267,7 @@ warning(Parx != Par)
 
 # data.entry(opponents)                             # inspect for debugging
 # test opponents and results, if not OK check encoding input file != ANSI (½)
-     
+
 if (sum(!is.na(opponents)) != sum(!is.na(results))) {
   sum(!is.na(opponents))   
   sum(!is.na(results))
