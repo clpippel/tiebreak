@@ -23,13 +23,17 @@
 # - title row before first numerical value in first column
 # - comment lines out in csv with #
 # Format gamefile (rondedossier)
-# - Sevilla         Pos Name 1 2 3 4 5 6
-#   Results         4b2, 1w0, 4b1, 1w1
-# - Chess results:  Rk. Naam Rtg 1.Rd 2.Rd 3.Rd Pts. TB1 TB2 Rp
-#   Results         9w1, 1b0, 9w½, 1b½
-# - FMJD:           Pl  FMJD-id Title Name Cn FMJD-\nrating R1 R2 R3 Pt 
-#   Results         2/11w, 0/1b , 1/11w, 1/1b 
-#
+# - Sevilla           Pos Name 1 2 3 4 5 6
+#   Results           4b2;1w0;4b1;1w1;
+# - Chess results:    Rk. Naam Rtg 1.Rd 2.Rd 3.Rd Pts. TB1 TB2 Rp
+#   Results           9w1;1b0;9w½;1b½
+# - FMJD Arbiter Pro: Place S.No. Title Name Fed. FMJD R1 R2 R3 R4 R5 R6 R7 R8 R9 Total SSolk
+#   Results           9w2;1b0;9w1;1b1;  +2;
+#   Tournooibase:     Pl FMJD-id Title Name Cn FMJD-\nrating R1 R2 R3 R4 R5 R6 R7 R8 R9 Pt
+#   Results:          2/15w 2/14b 2/4w 1/3w 2/6b 2/8w 1/2b 1/5w 1/9w
+#   website:          https://toernooibase.kndb.nl/opvraag/standen.php, edit into
+#                     https://toernooibase.kndb.nl/opvraag/matrixnewfmjd.php
+#                     	         
 #   Program flow:
 #   - read inputfile into rdtable
 #   - delete columns not containing games, output in rdm (ronde dossier matrix)
@@ -60,7 +64,7 @@
 # useful R:
 # typeof(), mode(), storage.mode(), # str(), structure(), dim(), attributes()
 # class(), methods(class="igraph")
-# length(), object.size(), nchar()
+# dput(), length(), object.size(), nchar()
 # vector("character", 10), numeric(5), logical(5), list()
 # names, dimnames, dim, setNames
 # Integer constant, 1L, 2L
@@ -68,7 +72,8 @@
 # sapply(dataframe, class)
 # serialize(), readRDS(), saveRDS(), sink("r-output.txt"), sink()
 # as_edgelist, get.edgelist
-# ls("package:igraph"), sessionInfo()
+# ls("package:igraph"), lsf.str("package:igraph"), methods("print")
+# sessionInfo()
 # https://cran.r-project.org/doc/manuals/r-devel/R-lang.html
 # 
 # edit D:\Program Files\R\R-3.6.1\etc\Rprofile.site to set default directory to \Work
@@ -84,7 +89,7 @@
 # 
 
 setwd(paste0(Sys.getenv("R_USER"), "/Work"))        # set working directory
-cat(rm(list = ls()))                                # remove all objects
+cat(rm(list = ls()))                                # remove all objects <-----------------+
 if (!require(igraph)) install.packages('igraph')    # install.packages("igraph") or use menu
 igraph_version()                                    # igraph version
 sessionInfo()
@@ -237,7 +242,7 @@ gfile <- gsub("-$"  ,  "" , gfile  )                # replace -, draughts
 gfile <- as.numeric(gfile)                          # game file
 dim(gfile) <- dim(opponents)
 dimnames(gfile) <- dimnames(opponents)
-
+  
 Par     <- max(gfile + t.sparse(gfile, opponents), na.rm=TRUE); # max score range
 names(Par) = "Maximal win score (1=chess, 2=draughts, 3 = football)"; Par
 points = matrix(rowSums(gfile, na.rm = TRUE))       # points
@@ -364,7 +369,7 @@ try(
    
 }, silent = FALSE)
 
-print(sprintf("# spelers = %d, aantal rondes = %d ", npls,  nrds), quotes=FALSE)
+print(sprintf("# spelers = %d, aantal rondes = %d ", npls,  nrds), quote=FALSE)
 
 edge_density(as.undirected(g, mode = c("collapse")))
 
@@ -372,3 +377,6 @@ rm(wts, elist, oppNOK, Parx)                                      # tidy up inte
 
 # --------------------------------------------------#
 # source('report.r', echo=FALSE, print=TRUE)        #
+# source('brr.r', echo=FALSE, print=TRUE)           #
+
+

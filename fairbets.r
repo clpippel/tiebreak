@@ -105,7 +105,7 @@ print(stime)
 # plot fair bet main SCC
 try( {
   dev.new()
-  lytfb     <- layout.sugiyama(g, hgap = 1L, vgap = 1L)$layout
+  lytfb     <- layout_with_sugiyama(g, hgap = 1L, vgap = 1L)$layout
   lytfb[,2] <- fb
   lytfb[is.na(fb),2] <- max(fb[!is.na(fb)])           # replace NA by max
   plot(g, layout=lytfb, main = paste0(ifelse(exists("pefbev"),"Perron Frobenius eigenvector", "Fairbets")
