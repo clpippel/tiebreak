@@ -149,7 +149,7 @@ mask_rmax  <- ifelse(results == rmax, 0, NA)        # wins, maximal win, win / l
 
 # show rank, ratings
 rkgrs <- cbind(rank(-growsums, ties.method= "min"), growsums)
-colnames(rkgrs) <- c("Rk", ifelse(is.null(grspar), "GRSums", "LSSums"))
+colnames(rkgrs) <- c("Rk", ifelse(exists("grspar") && length(grspar) > 0, "LSSums", "GRSums"))
 { 
 cat(sprintf("GRS parameters: e=%.2f, y=%.2f\n", elon, y))
 cat(sprintf("CG convergence: kappa=%g, cg_th=%d, # of iterations=%g\n", kappa, cg_th, cgcum))
@@ -162,7 +162,9 @@ lytgrs     <- layout_with_fr(g)
 # lytgrs     <- layout.circle(g)
 lytgrs[,2] <- growsums
 plot(g, layout=lytgrs, 
-        main  = paste0("SCCs with ", ifelse(is.null(grspar),"GRS", ifelse(grspar==0L, "LSM", "Laplace")), " layout")
+        main  = paste0("SCCs with ",
+                       ifelse(!(exists("grspar") && length(grspar) > 0),"GRS", ifelse(grspar==0L, "LSM", "Laplace")), " layout"
+                      )
 )
 })
 
