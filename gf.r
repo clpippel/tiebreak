@@ -245,11 +245,11 @@ dimnames(gfile) <- dimnames(opponents)
   
 Par     <- max(gfile + t.sparse(gfile, opponents), na.rm=TRUE); # max score range
 names(Par) = "Maximal win score (1=chess, 2=draughts, 3 = football)"; Par
-points = matrix(rowSums(gfile, na.rm = TRUE))       # points
+points = matrix(rowSums(gfile, na.rm = TRUE))       # points, ex bye results
 bhlz <- rowSums(matrix(points[as.vector(opponents)], nrow(points)), na.rm=TRUE) # Buchholz, Weerstand
 bhzp <- rowSums(matrix(  bhlz[as.vector(opponents)], nrow(points)), na.rm=TRUE) # Solkoff plus
-SB   <- rowSums(gfile * points[as.vector(opponents)], na.rm=TRUE) # Sonneborg-Berger, Neustadtl
-FB   <- SB / rowSums(t.sparse(gfile, opponents), na.rm=TRUE)      # Fairbets first iteration
+Nstl   <- rowSums(gfile * points[as.vector(opponents)], na.rm=TRUE) # Sonneborg-Berger, Neustadtl
+FB   <- SB / rowSums(t.sparse(gfile, opponents), na.rm=TRUE)        # Fairbets first iteration
 
 raticol <- which(regexpr("^([Rr]a?ti?n?g$|FMJD|APRO)$", trimws(names(rdtable))) >0) # Rating column
 aor <- rowMeans(matrix(as.numeric(rdtable[,raticol][opponents]), nrow(rdtable)), na.rm=TRUE) #average opponent rtg
@@ -378,5 +378,3 @@ rm(wts, elist, oppNOK, Parx)                                      # tidy up inte
 # --------------------------------------------------#
 # source('report.r', echo=FALSE, print=TRUE)        #
 # source('brr.r', echo=FALSE, print=TRUE)           #
-
-
