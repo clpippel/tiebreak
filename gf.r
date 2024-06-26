@@ -200,8 +200,6 @@ nrds <- ncol(rdm); names(nrds) <- "Number of rounds"; nrds # number of rounds
 halfch <- intToUtf8(0x00BD)                         # ½, indifferent to latin1, ANSI encodings in source program
 # create opponent and results matrix from game file, rows: number of players, columns: number of rounds
 # regex pattern: lookback = digit, split = color, lookahead = result character
-# pt1 = "(?<=[0-9])[wbshax][1½0]"                   # pattern for chess
-# pt1 = "[/]"                                       # pattern for FMJD
 if (isTRUE(FMJD)) {                                 # FMJD, 10x10 draughts, format 2/14, NA
   pt1 <- "/"
   sbs <- regexpr(pt1, rdm, perl = TRUE)             # index of the result character
@@ -281,8 +279,6 @@ if (sum(!is.na(opponents)) != sum(!is.na(results))) {
 }
 stopifnot(all.equal(!is.na(results), !is.na(opponents))) # orphaned result or opponent
 
-# opponents[is.na(results)] <- NA                   # repair to ignore forfeits (+, -)
-
 # --------------------------------------------------#
 # Plot results                                      #
 # Make edge list of opponents                       #
@@ -298,9 +294,9 @@ if (length(elist) == 0L) {                          # test nonempty graph
 }
 
 # --------------------------------------------------#
-# Create directed, named weighted graph.            #
+# Create directed, named, weighted graph.           #
 # Vertices are players. Edges are games.            #
-# Draws are modelled as half-wins.                  #
+# Draw is half-win and half-loss.                   #
 # Weights are game scores.                          #
 # Find SCC's in results                             #
 # --------------------------------------------------#
@@ -316,7 +312,7 @@ largest_SCC <- which.max(table(SCC$membership))     # Index most populated SCC (
 
 g <- set_graph_attr(g, name = "main"
                     , value = paste("Players = ", npls, ", Games = ", sum(wins, draws, losses) / 2, ", SCCs = ", SCC$no))
-g <- set_graph_attr( g, name = "layout", value = ifelse(SCC$no == 1, layout_in_circle, layout_with_fr))
+g <- set_graph_attr(g, name = "layout", value = ifelse(SCC$no == 1, layout_in_circle, layout_with_fr))
 g <- set_vertex_attr(g, name = "color", value = rainbow(SCC$no, alpha = 0.7)[SCC$membership])
 
 # plot game file
@@ -332,15 +328,11 @@ dev.new()                                           # comment out for rextester.
 wts <- edge_attr(qg)$weight                         # weight = points by edge
 wts[wts == 1] <- NA                                 # remove one game, improve readability
 
-# lyt <- layout_with_sugiyama(qg, hgap = 1, vgap = 1)$layout
-# if (vcount(qg) == 1) dim(lyt) <- c(1, 2)          # corrected ih rigraph
-lyt <- layout_with_sugiyama
-
 qg <- set_graph_attr(qg, name = "main",
                      value = ifelse(vcount(qg) == 1
                                     , "Graph is strongly connected"
                                     , paste(qg$name, "Sugiyama layers:", sep = ", ")))
-qg <- set_graph_attr(qg, name = "layout", value = lyt)
+qg <- set_graph_attr(qg, name = "layout", value = layout_with_sugiyama)
 qg <- set_edge_attr(qg, name = "label", value = wts)    # show numner of games
 qg <- set_vertex_attr(qg, name = "V(qg)$label.cex", value = .8) # font size
 plot(qg)
