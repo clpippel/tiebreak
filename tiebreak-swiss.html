@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="description" content="">
+<meta name="format-detection" content="telephone=no">
+<meta name="viewport" content="initial-scale=1" />
+<title>Tiebreak proposals for Swiss tournaments</title>
+<style>
+body    { font-size:large; font-family: Helvetica, sans-serif; line-height:1.625; margin-left:4em; margin-right:4em;}
+pre     { font-size:small;}
+dd      { margin-left:5em}
+dt      { float:left;}
+blockquote      { border-left: thick solid lightgrey; padding-left:0.5em}
+.break  { page-break-before: always;}
+.nw		{white-space: nowrap;}
+</style></head><body>
+<H1>Tiebreak proposals for Swiss tournaments</h1>
+<p>(mei 2020) C.L. Pippel, IJmuiden</p>
+<p>Discussions about tiebreaks goes back to as far as 1873 (Ahrends, p. 184). Vivid discussions arose when the famous 1914 Mannheim chess tournament was interrupted by World War One.
+At that point Alekhine was a half point ahead. But Vidmar did have met stronger opponents. The issue of defining rankings
+for tournaments has been studied in various fields like sports, psychology, decision theory, Condorcet voting. Many ranking methods based on different
+motivations have been defined.</p>
+<h2>Direct methods</h2>
+<h3>Solkoff, Buchholz, and variants</h3>
+<p>The above methods have a practical disadvantage. If a player leaves the tournament early the Solkoff contribution will be flatted in a negative sense.
+His opponents are thereby disadvantaged. The FIDE has found a solution for this (Forlani). But this solution is complicated and artificial.
+All direct methods have a fundamental limitation. They do take into account the direct opponents, but not the
+opponents of the opponents. And the opponents thereof. Four alternative indirect tiebreak methods are presented.</p>
+<h2>Relative Elo Ratings</h2>
+<h4>The normal distribution function</h4>
+<p><q>From general experience in sports we know that the stronger player does not invariably outperform the weaker.
+A player has good days and bad, good tournaments and bad. By and large at any point in his career, a player will perform
+around some average level. Deviations from this level occur, large deviations less frequently than small ones. These facts suggest the basic
+assumption of the Elo system. It is best stated in the formal terms of statistics:</q></p>
+<blockquote>
+    The many performances of an individual wil be normally distributed, when evaluated on an appropriate scale (Elo, 1978, p. 19).
+</blockquote>
+<h4>Development of the Percentage Expectancy Table</h4>
+<p>The normal probabilities may be taken directly from the standard tables of the areas under the normal curve, when the difference D
+in ratings is expressed as a z score. The z value of a difference equals D / sigma, where sigma = 2000 / 7. For example, let D = 160.
+Then z = 160 * 7 /2000 = 0,56. The table / formula gives ,7123 and ,2877 as areas of the two portions under the cumulative curve.
+These numbers represents the expected scores of the two opponents (Elo, p. 158).</p>
+<p>In a rating system (KNDB, FMJD) ratings are updated at regular time intervals.
+Relevant games are considered. Game by game the difference between actual and expected score is established, according to the percentage expectancy function.
+Then the existing rating is updated, proportional to the total difference between expected and actual score. However, when computing the relative Elo ratings, we do not assume any existing ratings prior to the tournament.
+All players in the tournament are assigned a rating, the relative Elo rating, such that for each player the expected score and the actual score are equal.
+This rating is calculated by a numeric iteration procedure, as no closed formula exists. The relative Elo rating of a tournament is unique, up to a constant.</p>
+<h4 class="break">Example
+<a href="https://toernooibase.kndb.nl/opvraag/standen.php?taal=1&amp;kl=46&amp;Id=6115&amp;jr=14">Open de Sangmelima Cameroon 2014</a></h4>
+<p>At the start of the iterations (R0) one assumes all players have equal strength. In the subsequent iterations the rating of each player is updated
+according to -ln(We/W) * 2000 / 7. <q>We</q> is the expected score derived from the cumulative normal distribution, W is the actual score and ln() constitutes the natural logarithm function.
+The updates are normalized to set the sum of all updates to zero. The iteration is slow, but stable.
+We may choose at start any average rating level including zero. This does not affect the ordering of the players.</p>
+<pre>
+Pl Title      Name        Cn Rating + = - N Pts Whl Wl | R0  We0 Up0    |  R1    We1  Up1   |  R2    We2  Up2   | Rk R28  |
+1  gmi   Leopold Kouomou  cm   2296 3 3 0 6  9  25  34 | 0,0 6,0 137,7  |  137,7 8,0  32,6  |  170,3 8,1  36,2  |  2 304,0|
+2        Gerard Ngankou   cm   2265 3 3 0 6  9  25  34 | 0,0 6,0 137,7  |  137,7 7,7  42,9  |  180,6 8,0  38,3  |  1 312,7|
+3        Mouanji Iliassou cm        4 0 2 6  8  16  23 | 0,0 6,0 104,0  |  104,0 9,0 -33,9  |   70,1 8,5 -10,6  |  6  18,3|
+4        Armand Abouem    cm        3 1 2 6  7  30  39 | 0,0 6,0  65,9  |   65,9 6,0  41,7  |  107,6 6,5  25,6  |  3 185,3|
+5        Landry Nga       cm        1 5 0 6  7  28  37 | 0,0 6,0  65,9  |   65,9 6,3  31,1  |   97,0 6,6  20,5  |  4 180,9|
+6  mi    Bruno Fopa       cm   2262 2 3 1 6  7  21  28 | 0,0 6,0  65,9  |   65,9 7,7 -28,3  |   37,5 7,5 -12,8  |  9 -26,6|
+7        Desire Ghuendou  cm        2 3 1 6  7  18  25 | 0,0 6,0  65,9  |   65,9 8,2 -45,6  |   20,3 7,6 -17,6  | 10 -63,0|
+8        Maturin Tomi     be        2 2 2 6  6  26  35 | 0,0 6,0  21,8  |   21,8 6,4 -17,1  |    4,7 6,0   6,0  |  5  33,6|
+9        Arnaud Foto      cm        2 2 2 6  6  25  32 | 0,0 6,0  21,8  |   21,8 6,3 -15,9  |    6,0 6,2  -3,6  |  8 -19,4|
+10       Patrick Akono    cm        1 3 2 6  5  31  40 | 0,0 6,0 -30,3  |  -30,3 4,4  36,2  |    5,9 5,2  -5,6  |  7 -16,3|
+11       Bernard Mambo    cm        2 0 4 6  4  28  37 | 0,0 6,0 -94,0  |  -94,0 3,7  18,8  |  -75,3 4,2  -8,6  | 11 102,5|
+12       David Wabo Daco  cm        1 2 3 6  4  23  31 | 0,0 6,0 -94,0  |  -94,0 4,7 -45,7  | -139,7 4,1  -3,3  | 12 177,2|
+13       Barel Bimogo     cm        1 1 4 6  3  23  31 | 0,0 6,0 -176,2 | -176,2 3,8 -66,9  | -243,1 3,1  -5,4  | 13 299,4|
+14       Prince Mvondo    cm        1 0 5 6  2  28  37 | 0,0 6,0 -292,1 | -292,1 1,7  50,2  | -241,8 2,5 -59,1  | 14 330,6|
+</pre><p>
+It is easy to check the results of the above calculation:
+</p>
+<pre>
+ Gerard Ngankou             313,0                                  Leopold Kouogueu Kouomou   304,0
+ Opponents                  R28    Diff  We                        Opponents                  R28    Diff  We
+ Patrick Akono              -16,3  329,3 1,75                      Prince Arnaud Mvondo      -330,6  634,6 1,97
+ Landry Nga                 180,9  132,1 1,36                      Maturin Nyamsi Tomi         33,6  270,4 1,66
+ Maturin Nyamsi Tomi        33,6   279,4 1,67                      Patrick Akono              -16,3  320,3 1,74
+ Bernard Mambo             -102,5  415,5 1,85                      Armand Abouem              185,3  118,7 1,32
+ Leopold Kouogueu Kouomou   304,0    9,0 1,03                      Gerard Ngankou             312,7   -8,7 0,98
+ Armand Abouem              185,3  127,7 1,35 +                    Landry Nga                 180,9  123,1 1,33 +
+Expected Score                           9,0 points               Expected score                           9,0 points
+</pre>
+<h3 class="break">Game file</h3>
+<pre>
+Pl     Name                       Rtg  R1    R2    R3    R4    R5    R6    Pt
+ 1 gmi Leopold Kouogueu Kouomou  2296 2/14b 1/8b  2/10w 2/4w  1/2b  1/5b   9
+ 2     Gerard Ngankou            2265 1/10b 1/5b  2/8w  2/11b 1/1w  2/4b   9
+ 3     Mouanji Iliassou               0/4w  0/10b 2/13b 2/14b 2/12w 2/11b  8
+ 4     Armand Abouem                  2/3b  2/9b  2/11w 0/1b  1/5w  0/2w   7
+ 5     Landry Nga                     1/8w  1/2w  1/12b 2/9w  1/4b  1/1w   7
+ 6 mi  Bruno Fopa                2262 0/12w 1/7b  2/14w 2/8b  1/10b 1/9w   7
+ 7     Desire Ghuendou                0/11w 1/6w  1/9b  1/13b 2/14w 2/10b  7
+ 8     Tomi Maturin Nyamsi            1/5b  1/1w  0/2b  0/6w  2/13w 2/14b  6
+ 9     Arnaud Foto                    2/13b 0/4w  1/7w  0/5b  2/11w 1/6b   6
+10     Patrick Akono                  1/2w  2/3w  0/1b  1/12b 1/6w  0/7w   5
+11     Bernard Mambo                  2/7b  2/12w 0/4b  0/2w  0/9b  0/3w   4
+12     David Daco Wabo                2/6b  0/11b 1/5w  1/10w 0/3b  0/13w  4
+13     Barel Bimogo                   0/9w  0/14b 0/3w  1/7w  0/8b  2/12b  3
+14     Prince Arnaud Mvondo           0/1w  2/13w 0/6b  0/3w  0/7b  0/8w   2
+<a href="https://toernooibase.kndb.nl/opvraag/matrixnewfmjd.php?taal=1&amp;kl=46&amp;Id=6115&amp;jr=14">FMJD report</a>
+</pre>
+<h3>Domain</h3>
+<p>The iteration requires an indivisible (that is, strongly connected or irreducible) domain.
+In every possible partition of players into two nonempty subsets,
+some player of the second set has defeated at least one player in the first set (Glickman, p. 5).
+Or alternatively, there exists a directed path between any two players.
+Finding all maximal strongly connected components is a mathematical puzzle in its own right.</p>
+<p>Remark: one can introduce a virtual opponent who draws to all other players to make the domain indivisible.</p>
+<h2>Skew-symmetric score systems</h2>
+<p>A score system R is skew-symmetric if for all possible outcomes (x, y) x + y = 0.
+Any traditional score system can be transformed to this form (Chebotarev, 1989, p. 1104):</p>
+<pre>
+        |x 3 .|                 |x 0 .|           | x  1½   . |
+Let A = |0 x 1|, transpose(A) = |3 x 1|, then R = |-1½  x   0 |
+        |. 1 x|                 |. 1 x|           | .   0   x |
+</pre>
+<p>where</p>
+<ul>
+<li>A represents the footbal score; win point = 3.</li>
+<li>R = (A - transpose(A)) / 2.</li>
+<li>Divide by two to preserve the difference between own en opponent score.</li>
+</ul>
+<h2 class="break">Least squares method</h2>
+<h3>Principle</h3>
+<p>If a player has a win, loss or draw his comparison outcome is set to 1, -1 or 0 respectively. The least squares method constructs a mean square approximation
+of the skew-symmetric comparison outcomes R by the differences of the desired least squares ratings (Cheboratev, 1999, p. 18):</p>
+<blockquote>
+Determine q = (q<sub>1</sub>,...,q<sub>n</sub>)
+such that Σ<sub>i</sub>Σ<sub>j</sub>(r<sub>ij</sub> - (q<sub>i</sub>-q<sub>j</sub>)n<sub>ij</sub>)<sup>2</sup> is a minimum (Gulliksen, 1956)
+</blockquote>
+<p>where</p>
+<ul>
+<li>n<sub>ij</sub> is the number of games between player i and j, i &ne; j, zero otherwise (matches matrix).</li>
+<li>r<sub>ij</sub> equals the sum of the results of player i against j.</li>
+</ul>
+<h3>Calculation</h3>
+<p>The LSM-ratings (q) are a solution of the set of linear equations:
+<ul>
+<li>L.q = s.</li>
+<li>Σq  = 0.</li>
+</ul>
+<p>where</p>
+<ul>
+<li>L = (l<sub>ij</sub>) is the Laplacian matrix of the tournament graph.</li>
+<li>l<sub>ii</sub> = Number of comparisons of player i.</li>
+<li>l<sub>ij</sub> = Negative the number of games between player i and j, i &ne; j.</li>
+<li>s = (s<sub>i</sub>), s<sub>i</sub> = Σ<sub>k</sub>r<sub>ik</sub>.</li>
+<li>Skew-symmetric draughts scores r<sub>ik</sub> are equivalent to (wins -/- losses).</li>
+</ul>
+<h4>Round-robin tournament</h4>
+<p>LSM-ratings q of a round-robin tournament:</p>
+<ul>
+<li>q = s / (N + r), where r = 1, 2, 3 for a single, double, triple round-robin tournament.</li>
+</ul>
+<p><strong>Note</strong> that if the percentage expectancy function of the relative Elo ratings is replaced by a linear relationship,
+for example the "algorithm of 400", then relative Elo ratings are identical to LS-ratings except for a scaling factor.
+Multiplying LS-ratings with a factor (400 / Rmax) gives a comparable rating in the Elo domain (FIDE Rating Regulations effective from 1 July 2017, table 8.1b).
+</p>
+<h4 class="break">Example Open de Sangmelima Cameroon 2014</h4>
+<pre>
+Pl Title      Name        Cn Rating + N  s  Whl Wl |Rk  LS-Rtg|
+1  gmi   Leopold Kouomou  cm   2296 3 6  3  25  34 | 2  0,643 |
+2        Gerard Ngankou   cm   2265 3 6  3  25  34 | 1  0,708 |
+3        Mouanji Iliassou cm        4 6  2  16  23 | 5  0,059 |
+4        Armand Abouem    cm        3 6  1  30  39 | 3  0,420 |
+5        Landry Nga       cm        1 6  1  28  37 | 4  0,392 |
+6  mi    Bruno Fopa       cm   2262 2 6  1  21  28 | 9 -0,042 |
+7        Desire Ghuendou  cm        2 6  1  18  25 |11 -0,122 |
+8        Maturin Tomi     be        2 6  0  26  35 | 6  0,054 |
+9        Arnaud Foto      cm        2 6  0  25  32 |10 -0,047 |
+10       Patrick Akono    cm        1 6 -1  31  40 | 8 -0,030 |
+11       Bernard Mambo    cm        2 6 -2  28  37 |12 -0,234 |
+12       David Wabo Daco  cm        1 6 -2  23  31 |13 -0,425 |
+13       Barel Bimogo     cm        1 6 -3  23  31 |15 -0,694 |
+14       Prince Mvondo    cm        1 6 -4  28  37 |14 -0,683 |
+</pre>
+<p>It is easy to check the result of the above calculation as follows:</p>
+<pre>
+ Gerard Ngankou              0,708  3                              Leopold Kouogueu Kouomou   0,643   3
+ Opponents                  LS-Rtg  Diff                           Opponents                  LS-Rtg  Diff
+ Patrick Akono              -0,030  0,738                          Prince Arnaud Mvondo       -0,683  1,326
+ Landry Nga                  0,392  0,316                          Maturin Nyamsi Tomi         0,054  0,589
+ Maturin Nyamsi Tomi         0,054  0,654                          Patrick Akono              -0,030  0,673
+ Bernard Mambo              -0,234  0,942                          Armand Abouem               0,420  0,223
+ Leopold Kouogueu Kouomou    0,643  0,065                          Gerard Ngankou              0,708 -0,065
+ Armand Abouem               0,420  0,288                          Landry Nga                  0,392  0,251 +
+s1                                  3,00 (Wins minus losses)       s2                                 3,00 (Wins minus losses)
+</pre>
+<h2 class="break">Recursive Buchholz</h2>
+<p>Let</p>
+<dl>
+<dt>Rb</dt><dd>- Recursive Buchholz ratings</dd>
+<dt>RbOpp</dt><dd>- Average opponents recursive Buchholz ratings</dd>
+<dt>s</dt><dd>- (s<sub>i</sub>) is sum of the skew-symmetric score points r<sub>ik</sub></dd>
+<dt>p</dt><dd>- Average of s</dd>
+</dl>
+<p>Rb, RbOpp, s, p are n&times;1 column vectors indexed by player.
+The recursive Buchholz rating Rb is the result of the following iteration procedure: (González-Díaz et al., 2013, p. 6).</p>
+<ul>
+<li>Rb = RbOpp + p.</li>
+<li>ΣRb= 0.</li>
+</ul>
+<h4>Example Open de Sangmelima Cameroun 2014</h4>
+<pre>
+Pl Title      Name        Cn Rating + = - N Pts Whl Wl | [,1]    [,2]    [,3]    [,4]    [,5]    [,6]    [,7]    [,8]    [,9]   [,10]   [,11]   [,12] ...  [,16]--
+1  gmi   Leopold Kouomou  cm   2296 3 3 0 6  9  25  34 |    0  0.5000  0.5000  0.6250  0.6103  0.6416  0.6358  0.6436  0.6417  0.6436  0.6431  0.6436 ... 0.6435
+2        Gerard Ngankou   cm   2265 3 3 0 6  9  25  34 |    0  0.5000  0.5556  0.6759  0.6728  0.7036  0.6993  0.7075  0.7056  0.7079  0.7071  0.7078 ... 0.7077
+3        Mouanji Iliassou cm        4 0 2 6  8  16  23 |    0  0.3333  0.0278  0.1157  0.0478  0.0729  0.0553  0.0626  0.0578  0.0600  0.0586  0.0593 ... 0.0590
+4        Armand Abouem    cm        3 1 2 6  7  30  39 |    0  0.1667  0.3611  0.3611  0.4105  0.4070  0.4188  0.4173  0.4201  0.4196  0.4203  0.4201 ... 0.4202
+5        Landry Nga       cm        1 5 0 6  7  28  37 |    0  0.1667  0.3056  0.3380  0.3781  0.3791  0.3907  0.3889  0.3924  0.3914  0.3925  0.3921 ... 0.3923
+6  mi    Bruno Fopa       cm   2262 2 3 1 6  7  21  28 |    0  0.1667  0.0000  0.0046 -0.0324 -0.0328 -0.0397 -0.0404 -0.0414 -0.0419 -0.0418 -0.0421 ... 0.0421
+7        Desire Ghuendou  cm        2 3 1 6  7  18  25 |    0  0.1667 -0.0833 -0.0509 -0.1173 -0.1048 -0.1222 -0.1174 -0.1223 -0.1206 -0.1220 -0.1214 ... 0.1217
+8        Maturin Tomi     be        2 2 2 6  6  26  35 |    0  0.0000  0.0278  0.0370  0.0486  0.0507  0.0526  0.0536  0.0535  0.0540  0.0538  0.0540 ... 0.0540
+9        Arnaud Foto      cm        2 2 2 6  6  25  32 |    0  0.0000 -0.0278 -0.0324 -0.0455 -0.0419 -0.0474 -0.0450 -0.0471 -0.0460 -0.0468 -0.0464 ... 0.0466
+10       Patrick Akono    cm        1 3 2 6  5  31  40 |    0 -0.1667  0.0556 -0.0648 -0.0046 -0.0401 -0.0227 -0.0329 -0.0278 -0.0307 -0.0292 -0.0300 ... 0.0298
+11       Bernard Mambo    cm        2 0 4 6  4  28  37 |    0 -0.3333 -0.1944 -0.2593 -0.2215 -0.2423 -0.2300 -0.2370 -0.2329 -0.2352 -0.2339 -0.2347 ... 0.2344
+12       David Wabo Daco  cm        1 2 3 6  4  23  31 |    0 -0.3333 -0.3889 -0.3981 -0.4221 -0.4169 -0.4256 -0.4224 -0.4255 -0.4240 -0.4251 -0.4245 ... 0.4248
+13       Barel Bimogo     cm        1 1 4 6  3  23  31 |    0 -0.5000 -0.5833 -0.6667 -0.6690 -0.6907 -0.6876 -0.6941 -0.6922 -0.6943 -0.6934 -0.6941 ... 0.6940
+14       Prince Mvondo    cm        1 0 5 6  2  28  37 |    0 -0.6667 -0.5556 -0.6852 -0.6559 -0.6853 -0.6772 -0.6843 -0.6820 -0.6838 -0.6832 -0.6836 ... 0.6835
+</pre>
+<p>Note:</p>
+<ul>
+<li>The procedure converges iff the matches matrix is not bipartite (Csató, 2015, p. 8 ).</li>
+<li>Although the perspective of RB and LSM are quite different, both ratings coincide (González-Díaz et al., 2013, p. 10). </li>
+</ul>
+<h2 class="break">Generalized row sum method</h2>
+<h3>Principle</h3>
+<p>Row sum scores (s) are calculated as the sum over k of the skew-symmetric outcomes r<sub>ik</sub>. The generalized row sum method is an extension of the row sum method.
+The idea of the generalization is to complete the missing comparisons.
+Central to the statistical interpretation of the generalized row sum method is the assumption that the expected value E(r<sub>ij</sub>) of a missing comparison is
+proportional to the difference of the scores x<sub>i</sub>, x<sub>j</sub> of the compared players i and j:</p>
+<ul>
+<li>x<sub>i</sub> = s<sub>i</sub> + Σ<sub>j</sub>E(r<sub>ij</sub>), where r<sub>ij</sub> is missing, s<sub>i</sub> = Σ<sub>k</sub>r<sub>ik</sub> where r<sub>ik</sub> is defined and
+<li>E(r<sub>ij</sub>) = (x<sub>j</sub>-x<sub>i</sub>)&thinsp;/&thinsp;γ, for any positive factor γ, see Cheboratev, 1989, Chapter 3 Statistical model, p. 1105.
+</ul>
+<p>These relationships form a system of n linear equations in n unknowns x<sub>i</sub>. For γ = m.n + ε<sup>-1</sup>
+the system of equations is equivalent to:</p>
+<ul>
+<li>x<sub>i</sub> = Σ<sub>k</sub>(r<sub>ik</sub> + ε(x<sub>k</sub>-x<sub>i</sub> + r<sub>ik</sub>n.m)), k = 1,&hellip;,n.</li>
+</ul>
+<p>where</p>
+<ul>
+<li>ε is a positive parameter.</li>
+<li>ε is well-chosen for given n and m if and only if ε<sup>-1</sup> &ge; m(n - 2).</li>
+<li>r<sub>ik</sub> + r<sub>ki</sub> = 0, the skew-symmetric outcome between players i, k.</li>
+<li>number of players n > 2, m = maximal number of games between any two players.</li>
+</ul>
+<p><strong>Monotonicity</strong>. Parameter ε is said to be well-chosen if for any outcome matrix R = (r<sub>ik</sub>) the value of its contribution to x<sub>i</sub> is
+nonnegative for a maximal win and nonpositive for a maximal loss (Chebotarev, 1997, Ch. 5, p. 9).</p>
+<h3>Calculation</h3>
+<p>The generalized row sums (x) are a solution of the set of lineair equations:</p>
+<ul>
+<li>(L + ε<sup>-1</sup>I)x = γs.</li>
+<li>Σx = 0.</li>
+</ul>
+<p>where</p>
+<ul>
+<li>L = (l<sub>ij</sub>) is the Laplacian matrix of the matches matrix, I is the identity matrix.</li>
+<li> γ = m.n + ε<sup>-1</sup>.</li>
+</ul>
+<p>Note that LS-ratings can be obtained as a limit of the generalized row sum calculation by setting ε<sup>-1</sup> = 0 and γ&nbsp;=&nbsp;1.</p>
+<h4 class = "break">
+<a href="https://toernooibase.kndb.nl/opvraag/standen.php?taal=&amp;kl=1&amp;Id=77&amp;jr=6">Example Trainingsvierkamp Harm Wiersma Huizum 2005 (Blitz)</a></h4>
+<pre>
+   n = 4                                              m = 2, 1/ε = 2&times;4
+Pl Naam                      Rating   1  2  3  4  N  |Matches|L + (1/ε)I | + = - Pts  s  |Rk  x    |
+ 1 Harm Wiersma           GMI  1502  xx 02 22 ..  4  |0 2 2 0|12 -2 -2  0| 3 0 1   6  2  | 1  2,667|
+ 2 Rein van der Pal       MF   1402  20 xx 02 12  6  |2 0 2 2|-2 14 -2 -2| 3 1 2   7  1  | 2  1,000|
+ 3 Tjalling van den Bosch      1190  00 20 xx 21  6  |2 2 0 2|-2 -2 14 -2| 2 1 3   5 -1  | 3 -1,000|
+ 4 Jan Adema                   1217  .. 10 01 xx  4  |0 2 2 0| 0 -2 -2 12| 0 2 2   2 -2  | 4 -2,667|
+ 
+ x = column vector of generalized row sum ratings
+ s = column vector wins -/- losses
+</pre>
+<h4>Statistical model</h4>
+<pre>
+Check expected values xi == si + Σ(xi-xj)/γ, γ = 1/ε + n.m, γ = 16
+All players are expected to complete an equal number of games
+
+  Harm Wiersma      2,67                 Jan Adema         -2,67
+  s1                2                    s4                -2
+Missing games                         Missing games        
+  (x1-x4)/γ         0,333               (x4-x1)/γ          -0,333
+  (x1-x4)/γ         0,333               (x4-x1)/γ          -0,333
+                    ----- +                                ------ +
+  s1 + missing gms  2,67                 s1 + missing gms  -2,67
+</pre>
+<h4>Direct method</h4>
+<pre>
+Check (L + (1/ε)I)x == γs, 1/ε = 8, γ = 16
+                   L+(1/ε)I   x       (L + (1/ε)I)x
+ Harm Wiersma            12   2,6667  32,0004
+ Rein van der Pal        -2   1,0000  -2,0000
+ Tjalling van den Bosch  -2  -1,0000   2,0000
+ Jan Adema                0  -2,6667   0,0000
+                                       ------ +
+ γ.s1                                 32,0000
+ s1                                    2,000
+</pre>
+<ul>
+<li>The statistical model is useful when the tournament is nearly complete.</li>
+<li>For sparse tournament matrices, the direct method is more practical.</li>
+</ul>
+<h2 class="break">Self-consistency (SC) and self-consistent monotonicity (SCM)</h2>
+<p>
+<i>Self-consistency</i> comes down to the following.
+Suppose we consider two alternatives (players), having the same number of comparisons,
+and the first alternative as compared to the second one</p>
+<ul>
+<li>achieves the better scores against the “stronger” opponents or</li>
+<li>achieves the better scores against the opponents of the same “strengths” or</li>
+<li>achieves the same scores against the “stronger” opponents.</li>
+</ul>
+<p>Then the first alternative should be placed higher than the second one in the tiebreak ranking.
+In the above requirement, “stronger” signifies” is “placed higher in the ranking that is mentioned in the requirement”.</p>
+
+<p>To obtain <i>self-consistent monotonicity</i> we require
+that if the first alternative additionally achieves some extra “wins” and/or the second alternative has extra “losses”,
+then the first alternative should remain higher than the second one in the tiebreak ranking. (Chebotarev, 1997, p. 2)</p>
+<p>Direct methods as row sum score, Buchholz, Sonneborn-Berger (Neustadtl) are monotonic.
+Direct methods are rather indifferent to opponent strength and therefore incompatible with self-consistency.
+Recursive Buchholz and LSM satisfy self-consistency but contradicts monotonicity.
+Relative Elo ratings and generalized row sum ratings obey self-consistent monotonicity.</p>
+<p>Consider the "algorithm of 400", the AVG400 rating system.
+If the rating difference between player and opponent exceeds 400, the expected plus score percentage is greater the 50%.
+However this is impossible to achieve. 
+Therefore a strong player can lose points even with a perfect score and a weak player can gain by losing all his games (Elo, p. 144).
+However, in the context of a tie-break, this is not necessarily undesirable.
+It can be considered a correction of an overly easy match schedule.
+</p>
+<h2 class="break">References</h2>
+<p>
+W. Ahrends, <i>Zur relativen Bewertung von Turnierpartien</i>, pp. 181-192 in: Wiener Schachzeitung, Georg Marco (ed.), Organ des <q>Wiener Schach-Club</q>,
+IV. Jahrgang., nr. 10/11. October-Novemb., Wien, 1901.
+<a href="http://anno.onb.ac.at/cgi-content/anno-plus?aid=sze&amp;datum=1901&amp;page=187&amp;size=45" target="_blank" rel="noopener noreferrer">ANNO</a></p>
+<p>Mark Glickman, Introductory note to 1928.
+<a href="https://www.semanticscholar.org/paper/Introductory-note-to-1928-Glickman/9b4686b60db0a78e731b512ddbbf9c7547ee46c6">on&#x2011;line</a></p>
+<p>
+Harold Gulliksen, <i>A Least Squares Solution for Paired Comparisons With Incomplete Data</i>, RB-55-5, Educational Testing Service, Princeton New Jersey, 1955,
+DOI:<a href="https://onlinelibrary.wiley.com/doi/epdf/10.1002/j.2333-8504.1955.tb00052.x" target="_blank" rel="noopener noreferrer">10.1002/j.2333-8504.1955.tb00052.x</a></p>
+<p>
+Arpad E. Elo, <i>The Rating of Chessplayers, Past&amp;Present</i>, ISHI Press International, Bronx NY 10453, 2008. ISBN&thinsp;0-923891-27-7.
+First printing by Arco Pub., New York, 1978.</p>
+<p>
+P. Yu. Chebotarev, <i>Generalization of the Row Sum Method for Incomplete Paired Comparisons</i>, Automation and Remote Control <b>50</b> (1989) 1103-1113.
+<a href="https://www.researchgate.net/publication/258514016_Generalization_of_the_Row_Sum_Method_for_Incomplete_Paired_Comparisons_Automation_and_Remote_Control_50_1103-1113" target="_blank" rel="noopener noreferrer">
+on&#x2011;line</a></p>
+<p>
+P. Yu. Chebotarev, E. Shamis, <i>From Incomplete Preferences to Ranking via Optimization,
+arXiv:</i> <a href="https://arxiv.org/abs/math/0602552v1" target="_blank" rel="noopener noreferrer">math/0602552v1</a>, 24 Feb 2006.<br>
+A version of this paper was published as: P.Yu.Chebotarev, E.V.Shamis. Constructing an objective function for aggregating incomplete preferences,
+In: A.Tangian and J.Gruber, eds. Econometric Decision Models: Constructing Scalar-Valued Objective Functions.
+Lecture Notes in Economics and Mathematical Systems, Springer-Verlag, 1997, P.100-124</p>
+<p>
+P. Yu. Chebotarev, E. Shamis, <i>Preference fusion when the number of alternatives exceeds two: indirect scoring procedures</i>, J. Frankl. Inst. <b>336(2)</b> (1999) 205–226,
+arXiv:<a href="https://arxiv.org/abs/math/0602171v3" target="_blank" rel="noopener noreferrer">math/0602171v3</a>, 20 Apr 2006.</p>
+<p>
+González-Díaz, J., Hendrickx, R. L. P., & Lohmann, E. R. M. A. <i>Paired Comparisons Analysis: An Axiomatic Approach to Rankings in Tournaments</i>,
+Social Choice and Welfare, <b>42</b> (2013) 139–169.
+<a href="http://eio.usc.es/pub/julio/papers/15._Paired_comparisons_analysis-_an_axiomatic_approach_to_rankings_in_tournaments_web.pdf" target="_blank" rel="noopener noreferrer" >on&#x2011;line</a></p>
+<p>
+László Csató, <i>A graph interpretation of the least squares ranking method</i>, Social Choice and Welfare, 44(1): 51-69, 2015.
+arXiv:<a href="https://arxiv.org/abs/1508.06778v1" target="_blank" rel="noopener noreferrer">1508.06778v1</a> [cs.GT], 27 Aug 2015.</p>
+<p>
+Csató, L. On the ranking of a Swiss system chess team tournament,
+<i>Annals of Operations Research</i> <b>254</b>, 17-36 (2017).
+arXiv:<a href="https://arxiv.org/abs/1507.05045v5" target="_blank" rel="noopener noreferrer">1507.05045v5 [stat.AP]</a> (p. 4)
+<p>
+Luigi Forlano, <i>Treatment of unplayed games for Buchholz tie break: the FIDE rule.
+<a href="http://www.vegachess.com/tl/tl_files/music_academy/ss/buchholzFIDEen.ppt" target="_blank" rel="noopener noreferrer" >on&#x2011;line</a></i></p>
+</body></html>
