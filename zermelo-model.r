@@ -13,8 +13,8 @@
 # Test example
 # rElo 104.008415, 104.008415, 4.855994, -212.872824
 # npls      <- 4
-# opponents <- matrix(c(4,3,2,1,3,4,1,2,2,1,4,3), nrow=npls) # indexed by player, round
-# gfile     <- matrix(c(2,1,1,0,1,2,1,0,1,1,1,1), nrow=npls) # indexed by player, round
+# opponents <- matrix(c(4,3,2,1,3,4,1,2,2,1,4,3), nrow=npls) # indexed by player, round.
+# gfile     <- matrix(c(2,1,1,0,1,2,1,0,1,1,1,1), nrow=npls) # indexed by player, round.
 # Par       <- 2
 # ------------------------------------------------------------
 
@@ -26,7 +26,7 @@ if (exists("SCC")) stopifnot(SCC$no == 1)       # Single SCC.
 #   Ur,s = Ur / (Ur + Us), p. 437. Eq. 1.
 # Combined probability of all games.
 #   W    =  ∏ Wr,s ∀r,s and r ≠ s. Eq. 3.
-# Combined probabity of Ar beats As with Grs against Gsr.
+# Combined probabity of Ar beats As with Gr,s against Gs,r.
 #   Wr,s = (Ur,s ^ Gr,s) * (Us,r ^ Gs,r). Eq 2, binomial model.
 # Gr,s is number of half wins player Ar against As.
 # Kr,s   = Gr,s + Gs,r, no draws.
@@ -36,8 +36,8 @@ fie <- function(u) {
   u <- matrix(u, nrow = npls)
   uropp <- u[, 1] / (u[, 1] + u[as.vector(opponents)]) # as.vector for two rounds.
   dim(uropp) <- dim(opponents)
-  return(sum(gfile * log(uropp), na.rm = TRUE)) # gfile = number of halfwins
-}                                               # Upto a multiplicative constant.
+  return(sum(gfile * log(uropp), na.rm = TRUE)) # gfile = number of halfwins,
+}                                               # upto a multiplicative constant.
 u0 <- rep(1, npls)                              # All players have equal strength.
 fie(u0)
 
