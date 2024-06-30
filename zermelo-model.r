@@ -18,15 +18,15 @@
 # Par       <- 2
 # ------------------------------------------------------------
 
-# Run gf.r first
-if (exists("SCC")) stopifnot(SCC$no == 1)       # Single SCC.
+if (!exists("SCC") || SCC$no > 1 ) q()      # Single SCC.
+if (!exists("npls")) q()                    # Run gf.r first
 
 # U is vector of ratings indexed by player.
-# Probability Ar beats As: Ur,s.
+# Probability(Ar beats As),
 #   Ur,s = Ur / (Ur + Us), p. 437. Eq. 1.
-# Combined probability of all games.
+# Combined probability of all games,
 #   W    =  ∏ Wr,s ∀r,s and r ≠ s. Eq. 3.
-# Combined probabity of Ar beats As with Gr,s against Gs,r.
+# Combined probabity of Ar beats As with Gr,s against Gs,r,
 #   Wr,s = (Ur,s ^ Gr,s) * (Us,r ^ Gs,r). Eq 2, binomial model.
 # Gr,s is number of half wins player Ar against As.
 # Kr,s   = Gr,s + Gs,r, no draws.
@@ -39,17 +39,18 @@ fie <- function(u) {
   return(sum(gfile * log(uropp), na.rm = TRUE)) # gfile = number of halfwins,
 }                                               # upto a multiplicative constant.
 u0 <- rep(1, npls)                              # All players have equal strength.
-fie(u0)
 
 # # p. 438, eq. (3).
-# Minimize combined probability (wz) of all outcomes.
+# Maximize combined probability (wz) of all outcomes.
 wz <- optim(par = u0
             , fn = fie
             , gr = NULL
             , method = "L-BFGS-B"                # Low memory, bounded, L-BFGS-B.
-            , lower = 1E-7, upper = 20           # Boxed.
-            , control = list(maxit = 1000, pgtol = 1E-10, fnscale = -1))
+            , lower = 1E-7, upper = 20           # Boxed. (Mannheim)
+            , control = list(maxit = 1000, pgtol = 0, fnscale = -1))
+wz$value
 wz$message
+if (fie(wz$par) != wz$value) warning()
 
 # Convert to Elo domain.
 rElo <- log(wz$par) * (400 / log(10))
