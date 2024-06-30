@@ -107,7 +107,6 @@ steptol <- (1.0e-3 / 3)                             # stdev(diff) < steptol, 3 s
 maxit <- npls + 5L                                  # maximum number of nr iterations, 5 for small npls
 maxit <- 100
 res0 <- We_min_W(rrtg)                              # residual at x=0 
-We    <- W + res0                                   # expected score
 
 L2step <- NA
 #----------------------------------------------------
