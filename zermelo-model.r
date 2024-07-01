@@ -17,9 +17,9 @@
 # gfile     <- matrix(c(2,1,1,0,1,2,1,0,1,1,1,1), nrow=npls) # indexed by player, round.
 # Par       <- 2
 # ------------------------------------------------------------
-
-if (!exists("SCC") || SCC$no > 1 ) q()      # Single SCC.
-if (!exists("npls")) q()                    # Run gf.r first
+                                            
+if (!exists("SCC") || SCC$no > 1 ) q()          # Single SCC.
+if (!exists("npls")) q()                        # Run gf.r first
 
 # U is vector of ratings indexed by player.
 # Probability(Ar beats As),
@@ -46,8 +46,8 @@ u0 <- rep(1, npls)                              # All players have equal strengt
 wz <- optim(par = u0
             , fn = fie
             , gr = NULL
-            , method = "L-BFGS-B"                # Low memory, bounded, L-BFGS-B.
-            , lower = 1E-7, upper = 20           # Boxed. (Mannheim)
+            , method = "L-BFGS-B"               # Low memory, bounded, L-BFGS-B.
+            , lower = 1E-7, upper = 20          # Boxed. (Mannheim)
             , control = list(maxit = 1000, pgtol = 0, fnscale = -1))
 c(wz$value, fie(u0))
 wz$message
@@ -56,20 +56,53 @@ if (fie(wz$par) < fie(u0)) warning("Solution less likely then all draws")
 
 # Convert to Elo domain.
 rElo <- log(wz$par) * (400 / log(10))
-rElo <- round(rElo - mean(rElo))                 # Normalize at sum is zero.
-rElo
-
+rElo <- rElo - mean(rElo)                       # Normalize at sum is zero.
+round(rElo)
+                                   
 # ---------------------------------------------------
 # Expected result Ar against As.
 #   ΣKrt * Urt, ∀t, r = 1,2,...,n. Eq 8a, p. 443.
 # Krt is number of games between Ar and At.
 # In the gamefile representation Krt = 1 for all players. One game per round.
 # The crux: validate actual score (Waz) equals expected score Wez(u).
-Waz <- rowSums(gfile, na.rm=TRUE)                 # Actual score from game file.
+Waz <- rowSums(gfile, na.rm=TRUE)               # Actual score from game file.
 
-uz <- matrix(wz$par, nrow = npls)                 # Most likely ratings.
+uz <- matrix(wz$par, nrow = npls)               # Most likely ratings.
 uzopp <- uz[, 1] / (uz[, 1] + uz[as.vector(opponents)]) # Indexed by player, round.
-dim(uzopp) <- dim(opponents)                      # Likely result.
-Wez <- rowSums(uzopp, na.rm = TRUE) * Par
-stopifnot(sd(Waz - Wez) < 1E-3)                   # Actual score equals expected score.
+dim(uzopp) <- dim(opponents)                    # Likely result.
+Wez <- rowSums(uzopp, na.rm = TRUE) * Par       # Expected score.
+stopifnot(sd(Waz - Wez) < 1E-3)                 # Actual score equals expected score.                                         
 sd(Waz - Wez)
+
+# --------------------------------------------------------------------------------------
+# Calculate rating by Zermelo iteration
+# p. 453, §5.
+maxit <- max(npls * log(npls), 1000)             # Maximum number of iterations.
+tol   <- 1E-3
+uz <- matrix(u0, nrow=npls)
+
+for (it in seq(maxit)) {
+  uzopp <- uz[, 1] / (uz[, 1] + uz[as.vector(opponents)]) # Indexed by player, round.
+  dim(uzopp) <- dim(opponents)
+  Wez <- rowSums(uzopp, na.rm = TRUE) * Par     # Expected score.
+  if (any(Wez < .Machine$double.eps)) break     # Strictly positive.
+  if (sd(Waz - Wez) < tol) break
+        
+  uz.n <- (Waz / Wez) * uz                      # Next rating.
+  uz.n <- uz.n / exp(sum(log(uz.n)) / length(uz.n)) # Renormalize to product is one.
+  if (sd(uz - uz.n) < 1E-5) {
+    print("No progression in iteration step")
+    print(sd(uz - uz.n))
+    break                                       # No convergence
+  }
+  uz <- uz.n
+}
+
+if (it >= maxit) print("Maximum number of iteration reached.")
+sd(Waz - Wez)
+c(fie(uz), fie(wz$par))
+
+# Convert to Elo domain.
+rEloT <- log(uz) * (400 / log(10))
+rEloT <- rEloT - mean(rEloT)                    # Normalize at sum is zero.
+# zapsmall(rEloT)                               # Calculated by iteration.
