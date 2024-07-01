@@ -35,7 +35,7 @@ W_expected <- function(x) {
   stopifnot(sum(Wem, na.rm=TRUE) < .Machine$double.eps * length(Wem)) # sum of rating differences
   We <- as.matrix(rowSums(Wem, na.rm=TRUE)) * Par   # expected score (n)
   
-  return(rowSums(Wem, na.rm=TRUE) * Par)            # expected score minus W (indexed by player)
+  return(rowSums(Wem, na.rm=TRUE) * Par)            # expected score (indexed by player)
 }            
 
 #----------------------------------------------------------------
