@@ -31,6 +31,7 @@ if (!exists("npls")) q()                    # Run gf.r first
 # Gr,s is number of half wins player Ar against As.
 # Kr,s   = Gr,s + Gs,r, no draws.
 #
+# Function Φ, eq. 3, p.438.
 # Returns log of combined probability (W).
 fie <- function(u) {
   u <- matrix(u, nrow = npls)
@@ -48,9 +49,10 @@ wz <- optim(par = u0
             , method = "L-BFGS-B"                # Low memory, bounded, L-BFGS-B.
             , lower = 1E-7, upper = 20           # Boxed. (Mannheim)
             , control = list(maxit = 1000, pgtol = 0, fnscale = -1))
-wz$value
+c(wz$value, fie(u0))
 wz$message
-if (fie(wz$par) != wz$value) warning()
+if ( abs(fie(wz$par) - wz$value) > .Machine$double.eps) warning("Something wrong in Φ, optim")
+if (fie(wz$par) < fie(u0)) warning("Solution less likely then all draws")
 
 # Convert to Elo domain.
 rElo <- log(wz$par) * (400 / log(10))
