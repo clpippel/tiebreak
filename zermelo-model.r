@@ -81,6 +81,7 @@ maxit <- max(npls * log(npls), 1000)             # Maximum number of iterations.
 tol   <- 1E-3
 uz <- matrix(u0, nrow=npls)
 
+# Iterate until Waz == Wez.
 for (it in seq(maxit)) {
   uzopp <- uz[, 1] / (uz[, 1] + uz[as.vector(opponents)]) # Indexed by player, round.
   dim(uzopp) <- dim(opponents)
