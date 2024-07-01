@@ -19,12 +19,12 @@ Pr  <- function(x) {return(1./(1. + exp(-x)))}      # logistic probability funct
 dPr <- function(x) {e <- Pr(x); return(e * (1-e))}  # derivative
 
 #-------------------------------------------------------
-# We_min_W, difference between expected and actual score
+# W_expected, expected score
 # f(x) = ( f1(x), f2(x) ... fn(x) )
 # fi(x) = Sum(We(xi - xj) - W), j = 1..rounds
 # Par = max(∀ plusscore - minscore)
 # ------------------------------------------------------
-We_min_W <- function(x) {
+W_expected <- function(x) {
   dpopp <- x[,1] - x[as.vector(opponents)];         # difference between own rating, opponent rating
   dim(dpopp) = dim(opponents)                       # indexed by player, round         
 
@@ -35,7 +35,7 @@ We_min_W <- function(x) {
   stopifnot(sum(Wem, na.rm=TRUE) < .Machine$double.eps * length(Wem)) # sum of rating differences
   We <- as.matrix(rowSums(Wem, na.rm=TRUE)) * Par   # expected score (n)
   
-  return(rowSums(Wem, na.rm=TRUE) * Par - W)        # expected score minus W (indexed by player)
+  return(rowSums(Wem, na.rm=TRUE) * Par)            # expected score minus W (indexed by player)
 }            
 
 #----------------------------------------------------------------
@@ -106,7 +106,8 @@ cgeps <- exp(-2)                                    # cg residual error relative
 steptol <- (1.0e-3 / 3)                             # stdev(diff) < steptol, 3 sigma change in diff after <<<e-three>>> decimals
 maxit <- npls + 5L                                  # maximum number of nr iterations, 5 for small npls
 maxit <- 100
-res0 <- We_min_W(rrtg)                              # residual at x=0 
+We    <- W_expected(rrtg)                           # expected score
+res0 <- We - W                                      # residual at x=0 
 
 L2step <- NA
 #----------------------------------------------------
@@ -115,7 +116,8 @@ L2step <- NA
 stime <- system.time(   
 for (it in seq_len(maxit)){
 
-  res <- We_min_W(rrtg)                             # compute difference We, W, + Jacobian
+  We  <- W_expected(rrtg)                           # Expected score
+  res <- We - W                                     # compute difference We, W, + Jacobian
   if (crossprod(res) < .Machine$double.eps) break   # solution found 
   kappa = max(Jfdiag) / min(Jfdiag[Jfdiag[]>0])     # condition number, λmax /  λmin 
   cg_th <- round(sqrt(kappa) * log(2 / cgeps) / 2 +0.5)  # rate of convergence CG method
@@ -148,9 +150,9 @@ for (it in seq_len(maxit)){
 
 cat("\n")
 if (!exists("report_tpr")) {
-cat("rrtg", sep="\n"); print(rrtg, digits = 4)
-cat("Iterations NR", sep="\n"); print(iterations, digits = 4)
-if (it >= maxit) print("Maximum number of iteration reached.")
+  cat("rrtg", sep="\n"); print(zapsmall(rrtg))
+  cat("Iterations NR", sep="\n"); print(zapsmall(iterations))
+  if (it >= maxit) print("Maximum number of iteration reached.")
 }
 cat("Convergence NR", sep="\n"); print(c(convergence), digits = 4)
 
