@@ -1,0 +1,8 @@
+;; Zermelo,  Mathematische Zeitschrift 29 (1929): 436-460. <http://eudml.org/doc/168081>.
+;; n=4 k=3
+;; u2/u4=y, u3/u4=y, u1/u4=y^2, 5y^3 + y^2 + 3y -1 = 0, y = .27401 (p452)
+Pl;Name;1;2;3
+1;A1;4w1;3b0;2w0
+2;A2;3w1;4w0;1z2
+3;A3;2z1;1b2;4w0
+4;A4;1z1;2z2;3z2

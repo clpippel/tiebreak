@@ -1,0 +1,7 @@
+;; Zermelo,  Mathematische Zeitschrift 29 (1929): 436-460. <http://eudml.org/doc/168081>.
+;; u1=0,1304 u2=0,2778 u3=0,5918 Σu=1. (p451)
+;; 3y^3 + y^2 + y - 1 = 0, y = .46940, u3=1, u2=y, u1=y*y
+Pl;Name;1;2;3
+1;A1;   ;2w1;3b0
+2;A2;3w1;1b1;
+3;A3;2z1;   ;1b2
