@@ -10,19 +10,6 @@
 # Wahrscheinligkeit für das Eintreten des beobachteten Turnier-Ergebnisses
 # eine möchlichst große wird.
 #
-# Test example
-# uz   1.5713270,  1.5713270,  0.8879449,  0.2535495
-# rElo 104.008415, 104.008415, 4.855994 , -212.872824
-# npls      <- 4
-# opponents <- matrix(c(4,3,2,1,3,4,1,2,2,1,4,3), nrow=npls) # indexed by player, round.
-# gfile     <- matrix(c(2,1,1,0,1,2,1,0,1,1,1,1), nrow=npls) # indexed by player, round.
-# Par       <- 2
-# ------------------------------------------------------------
-Waz <- rowSums(gfile, na.rm=TRUE)               # Actual score from game file.
-     
-if (exists("SCC") && SCC$no > 1 ) q()           # Single SCC.
-if (!exists("npls")) q()                        # Run gf.r first
-
 # U is vector of ratings indexed by player.
 # Probability(Ar beats As),
 #   Ur,s = Ur / (Ur + Us), p. 437. Eq. 1.
@@ -32,6 +19,15 @@ if (!exists("npls")) q()                        # Run gf.r first
 #   Wr,s = (Ur,s ^ Gr,s) * (Us,r ^ Gs,r). Eq 2, binomial model.
 # Gr,s is number of half wins player Ar against As.
 # Kr,s   = Gr,s + Gs,r, no draws.
+
+# Test example
+# uz   1.5713270,  1.5713270,  0.8879449,  0.2535495
+# rElo 104.008415, 104.008415, 4.855994 , -212.872824
+# npls      <- 4
+# opponents <- matrix(c(4,3,2,1,3,4,1,2,2,1,4,3), nrow=npls) # indexed by player, round.
+# gfile     <- matrix(c(2,1,1,0,1,2,1,0,1,1,1,1), nrow=npls) # indexed by player, round.
+# Par       <- 2
+# -----------------------------------------------------------------------------
 
 # u = "Spielstärken", M.Z. 29, p. 437
 # Function Φ, eq. 3, M.Z. 29, p. 438.
@@ -43,7 +39,11 @@ fie <- function(u) {
   return(sum(gfile * log(uropp), na.rm = TRUE)) # gfile = number of halfwins,
 }                                               # upto a multiplicative constant.
 
-# -----------------------------------------------------------------------------
+if (exists("SCC") && SCC$no > 1 ) q()           # Single SCC.
+if (!exists("npls")) q()                        # Run gf.r first
+Waz <- rowSums(gfile, na.rm=TRUE)               # Actual score from game file.
+
+# --------------------------------------------------------------------------(1)
 # Maximize combined probability (wz) of all outcomes.
 # M.Z. 29, p. 438, eq. (3).
 u0 <- rep(1, npls)                              # All players have equal strength.
@@ -63,7 +63,7 @@ rElo <- log(wz$par) * (400 / log(10))           # rElo is unique up to an additi
 rElo <- rElo - mean(rElo)                       # Normalize at sum is zero.
 round(rElo)
 
-# -----------------------------------------------------------------------------
+# -------------------------------------------------------------------
 # The crux: validate actual score (Waz) equals expected score Wez(u).
 # Expected result Ar against As.
 #   ΣKrt * Urt, ∀t, r = 1,2,...,n. Eq 8a, p. 443.
@@ -80,7 +80,7 @@ stopifnot(sd(Waz - Wez) < 1E-3)                 # Actual score equals expected s
 sd(Waz - Wez)
 zapsmall(c(rEloT))
 
-# -----------------------------------------------------------------------------
+# --------------------------------------------------------------------------(2)
 # Second method.
 # Calculate rating (uz) by Zermelo iteration. p. 453,
 # M.Z. 29, §5. Die numerische Auflösing die Gleigungen durch successive Approximation.
@@ -107,7 +107,7 @@ for (it in seq(maxit)) {
   uz <- uz.n                                    # Next iteration.
 }
 if (it >= maxit) print("Maximum number of iteration reached.")
-c(wz$value, fie(u0))                            # Compare to start value
+c(fie(uz), fie(u0))                             # Compare to start value
 
 # Convert to Elo domain.
 rEloT <- log(uz) * (400 / log(10))              # rElo is unique up to an additive constant.
