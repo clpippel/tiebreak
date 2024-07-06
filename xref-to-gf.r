@@ -14,7 +14,7 @@
 #   # Annotation:
 #   # Tie Break1: Sonneborn-Berger-Tie-Break variable
 #   # Tie Break2: Direct Encounter (The results of the players in the same point group)
-# output:
+# output in data.frame gamefile:
 #     Rk. Var.2               Name  Rtg FED Pts.   TB1 TB2   1   2   3   4   5
 #   1   1    GM    Zaragatski Ilja 2482 GER    5 10,00   0 6w1 2w1 3b1 4w1 5b1
 #   2   2           Kornitzky Tino 2055 GER  3,5  5,00   0 5w1 1b0 6b1 3w½ 4b1
@@ -25,12 +25,9 @@
 
 setwd("d:\\Users\\clpip\\Documents\\Work")          # set working directory
 cat(rm(list = ls()))                                # remove all objects
-if (!require(igraph)) q()                           # install.packages("igraph") or use menu
 options(error=traceback)
-cat("\014")                                         # clear console
-sessionInfo()
 
-rrrounds <- 1
+rrrounds <- 1                                       # Round robin cycle (1,2)
 names(rrrounds) <- "Round Robin Round"
 
 fcsv <- ifelse(exists("choose.files")

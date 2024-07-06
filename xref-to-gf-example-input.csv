@@ -1,5 +1,4 @@
-;Final Ranking crosstable after 5 Rounds
-; test
+;;Final Ranking crosstable after 5 Rounds
 Rk.;;Name;Rtg;FED;1;2;3;4;5;6;Pts.;TB1;TB2 
 1;GM;Zaragatski Ilja;2482;GER;*;1;1;1;1;1;5;10,00;0
 2;;Kornitzky Tino;2055;GER;0;*;½;1;1;1;3,5;5,00;0
@@ -10,3 +9,4 @@ Rk.;;Name;Rtg;FED;1;2;3;4;5;6;Pts.;TB1;TB2
 # Annotation:
 # Tie Break1: Sonneborn-Berger-Tie-Break variable
 # Tie Break2: Direct Encounter (The results of the players in the same point group)
+# https://chess-results.com/tnr437642.aspx?lan=1&art=4
