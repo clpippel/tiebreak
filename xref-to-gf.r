@@ -23,11 +23,11 @@
 #   5   5            Vögtlin André 1719 SUI    1  0,00   0 2b0 3w0 4b0 6b1 1w0
 #   6   6           Züllig Flavian 1379 SUI    0  0,00   0 1b0 4w0 2b0 5w0 3b0
 
-setwd("d:\\Users\\clpip\\Documents\\Work")          # set working directory
+setwd(paste0(Sys.getenv("R_USER"), "/Work"))        # set working directory
 cat(rm(list = ls()))                                # remove all objects
 options(error=traceback)
 
-rrrounds <- 1                                       # Round robin cycle (1,2)
+rrrounds <- 2                                       # Round robin cycle (1,2)
 names(rrrounds) <- "Round Robin Round"
 
 fcsv <- ifelse(exists("choose.files")
@@ -36,17 +36,21 @@ fcsv <- ifelse(exists("choose.files")
 if (is.na(fcsv)) q()                                # quit when no input
 fcon <- file(fcsv, "r")
 
-rdtable <- read.csv(fcon                            # read game file (n x r)
-                   ,header = FALSE
-                   ,sep=";", dec=",", strip.white=TRUE, blank.lines.skip = TRUE
-                   ,comment.char = "#"
-                   ,stringsAsFactors=FALSE
-                   ,encoding = "UTF-8"              # Sevilla = UTF-8, W10 = ANSI
-                   )
+rdtable <- read.csv2(fcon                           # read game file (n x r)
+                     , header = FALSE
+                     , row.names = NULL             # forces numbering
+                     , colClasses = "character"
+                     , strip.white = TRUE
+                     , blank.lines.skip = TRUE
+                     , comment.char = "#"
+                     , stringsAsFactors = FALSE
+                     , encoding = "UTF-8")           # Sevilla = UTF-8, W10 = ANSI
 close(fcon)
+stopifnot(length(names(rdtable)) != 1)
 
-trow <- min(which(!is.na(suppressWarnings(as.numeric(rdtable[,1]))))) - 1 # find first title row
+trow <- min(which(!is.na(suppressWarnings(as.numeric(rdtable[,1]))))) - 1 # title row: first row with numeric in first column
 stopifnot( trow > 0)
+stopifnot(trow <= 5L)                               # header row must be smaller then 5, to guess max number of collumns
 
 # concatenate nonblank columns by row
 gfheader <- cbind(apply(rdtable[seq_len(trow-1),], 1, function(row) {paste(row[row != ""], collapse = "; ")} ) )
@@ -54,8 +58,7 @@ gfheader <- cbind(apply(rdtable[seq_len(trow-1),], 1, function(row) {paste(row[r
 
 names(rdtable) <- rdtable[trow,]                    # set column names from input
 rdtable <- rdtable[-c(seq_len(trow)),]              # remove header rows, if any
-
-rownames(rdtable) <- c()                            # remove rownames
+rownames(rdtable) <- NULL                           # recalculate rownames
 
 npls = nrow(rdtable)                                # number of players
 stopifnot(npls > 1)                                 # non trivial                  
@@ -63,7 +66,6 @@ stopifnot(npls > 1)                                 # non trivial
 # Keep: S9+, X9+, V9+, 9+, + = one or more occurrences
 # gfrmcols <- grep("^([SVX.]+.*\\d+.*|\\d+.*)$", names(rdtable), ignore.case=TRUE, invert=TRUE)
 # gfrmcols <- grep("^[SXV]?\\d+$", names(rdtable), ignore.case=TRUE, invert=TRUE)
-
 
 # columns to remove. Keep: R*10*, .*10*  | 10*..., where * is any sequence
 gfrmcols <- grep("^([R.]+.*\\d+.*|\\d+.*)$", names(rdtable), ignore.case=TRUE, invert=TRUE)

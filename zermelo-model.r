@@ -61,7 +61,7 @@ if (fie(wz$par) < fie(u0)) warning("Solution less likely then all draws")
 # Convert to Elo domain.
 rElo <- log(wz$par) * (400 / log(10))           # rElo is unique up to an additive constant.
 rElo <- rElo - mean(rElo)                       # Normalize at sum is zero.
-round(rElo)
+zappsmall(c(rElo))
 
 # -------------------------------------------------------------------
 # The crux: validate actual score (Waz) equals expected score Wez(u).
@@ -78,7 +78,6 @@ Wez <- rowSums(uzopp, na.rm = TRUE) * Par       # Expected score.
 
 stopifnot(sd(Waz - Wez) < 1E-3)                 # Actual score equals expected score.
 sd(Waz - Wez)
-zapsmall(c(rEloT))
 
 # --------------------------------------------------------------------------(2)
 # Second method.

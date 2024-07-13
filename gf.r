@@ -13,6 +13,7 @@
 #   2023-feb-07, correct laplacian calculation.
 #   2023-feb-21, SCCs*Players indexed by level simplified by data.frame.
 #                Set working directory using R_USER
+#   2024-jul-08  European style csv, force automatic rownames.
 #
 #   CSV, Comma Separated Values (RFC 4180)
 #   remove manually "=" from ="0" (excel)
@@ -49,7 +50,7 @@
 #
 # indexed by player x round:
 # rdm       - results extracted from rdtable, indexed by player x round
-# res_sym   - game results symbols
+# res_sym   - game results symbols, numeric expressions (.8)
 # opponents - opponents
 # results   - skew symmetric game results (numeric)
 # gfile     - game results (numeric)
@@ -73,7 +74,7 @@
 # serialize(), readRDS(), saveRDS(), sink("r-output.txt"), sink()
 # as_edgelist, get.edgelist
 # ls("package:igraph"), lsf.str("package:igraph"), methods("print")
-# sessionInfo()
+# .libPaths(), sessionInfo()
 # https://cran.r-project.org/doc/manuals/r-devel/R-lang.html
 #
 # edit D:\Program Files\R\R-3.6.1\etc\Rprofile.site to set default directory to \Work
@@ -83,7 +84,7 @@
 # remove.packages('igraph')
 # install.packages('igraph')
 # lsf.str("package:base")        # Apply lsf.str function
-# ls("package:igraph")           # Apply lsf.str function
+#            # Apply lsf.str function
 # installed.packages()           # List ...
 # remove.packages(pkgs, lib)     # remove package
 #
@@ -140,33 +141,35 @@ make_quotient_graph <- function(g, membership, title) {
       name = function(x) paste(x[seq_len(min(2, length(x)))], collapse = "/")
     )) %>%
     simplify(edge.attr.comb = "sum", remove.loops = FALSE) %>% # combine multiple edges
-    set_graph_attr("name", title) %>%                        # add title to graph
+    set_graph_attr("name", title) %>%                          # add title to graph
     return
 }
 #-----------------------------------------------------------------------------------
 
 fcsv <-
-  ifelse(exists("choose.files")                # file name game file
+  ifelse(exists("choose.files")                     # file name game file
          , choose.files(default = "*.csv", multi = FALSE)
-         , "stdin")                            # online ideone.com (no graphics)
+         , "stdin")                                 # online ideone.com (no graphics)
 if (is.na(fcsv)) q(); print(fcsv)                   # quit when no input
 fcon <- file(fcsv, "r")                             # open connection to read inut from
 
 # first five lines of input must contain the maximum number of columns <<<
+# no quoting assumed
 # edit(rdtable) to inspect
 # "ronde dossier" or game file (npls x nrds),
-rdtable <- read.csv(fcon                           # read game file (n x r)
-                    , header = FALSE
-                    , sep = ";", dec = ",", strip.white = TRUE, blank.lines.skip = TRUE
-                    , quote = ""
-                    , comment.char = "#"
-                    , stringsAsFactors = FALSE
-                    , encoding = "UTF-8")           # Sevilla = UTF-8, W10 = ANSI
-
+rdtable <- read.csv2(fcon                           # read game file (n x r)
+                     , header = FALSE
+                     , row.names = NULL             # automatic numbering
+                     , colClasses = "character"
+                     , strip.white = TRUE
+                     , blank.lines.skip = TRUE
+                     , comment.char = "#"
+                     , stringsAsFactors = FALSE
+                     , encoding = "UTF-8")          # Sevilla = UTF-8, W10 = ANSI
 close(fcon)
 stopifnot(length(names(rdtable)) != 1)              # read.csv did not recognize table (add ;;;; in first csv line)
 
-trow <- min(which(!is.na(suppressWarnings(as.numeric(rdtable[, 1]))))) - 1L # find first title row, numeric in first column
+trow <- min(which(!is.na(suppressWarnings(as.numeric(rdtable[, 1]))))) - 1L # title row: first row with numeric in first column
 stopifnot(trow > 0L)
 stopifnot(trow <= 5L)                               # header row must be smaller then 5, to guess max number of collumns
 
@@ -174,13 +177,13 @@ stopifnot(trow <= 5L)                               # header row must be smaller
 gfheader <- cbind(apply(rdtable[seq_len(trow - 1), ], 1, function(row) {paste(row[row != ""], collapse = "; ")}))
 
 names(rdtable) <- trimws(rdtable[trow, ], whitespace = "[\\h\\v]") # set column names from input, remove UTF ws, nbsp
-rdtable <- rdtable[-as.vector(seq_len(trow)), ]      # remove header rows, if any
-rownames(rdtable) <- c()                             # remove rownames
+rdtable <- rdtable[-as.vector(seq_len(trow)), ]     # remove header rows, if any
+rownames(rdtable) <- NULL                           # recalculate rownames
 
 npls <- nrow(rdtable); names(npls) <- "Number of players"; npls # number of players
-stopifnot(isTRUE(npls > 0))                          # non trivial
+stopifnot(isTRUE(npls > 0))                         # non trivial
 
-FMJD <- max(regexpr("*FMJD-report", gfheader)) > 0L  # FMJD report style
+FMJD <- max(regexpr("*FMJD-report", gfheader)) > 0L # FMJD report style
 
 # columns to remove. Keep: R*10*, .*10*  | 10*..., where * is any sequence
 # drop columns with empty header
@@ -200,7 +203,7 @@ nrds <- ncol(rdm); names(nrds) <- "Number of rounds"; nrds # number of rounds
 halfch <- intToUtf8(0x00BD)                         # ½, indifferent to latin1, ANSI encodings in source program
 # create opponent and results matrix from game file, rows: number of players, columns: number of rounds
 # regex pattern: lookback = digit, split = color, lookahead = result character
-if (isTRUE(FMJD)) {                                 # FMJD, 10x10 draughts, format 2/14, NA
+if (isTRUE(FMJD)) {                                 # FMJD, 10x10 draughts, format 1/14b
   pt1 <- "/"
   sbs <- regexpr(pt1, rdm, perl = TRUE)             # index of the result character
   opponents <- structure(as.integer(substr(rdm, sbs + 1, nchar(rdm) - 1)), dim = dim(rdm), dimnames = dimnames(rdm)) # force matrix
@@ -236,9 +239,11 @@ if (!all(apply(opponents, 2, function(v) all(seq_along(v) == v[v], na.rm = TRUE)
 
 # compute results, skew symmetric results
 gfile <- gsub(halfch, ".5", res_sym)                # replace ½
-gfile <- gsub("\\+$", "",   gfile)                  # replace +, draughts
-gfile <- gsub("-$",   "",   gfile)                  # replace -, draughts
+gfile <- gsub("\\+$", "",   gfile)                  # replace +, draughts plus score
+gfile <- gsub("-$",   "",   gfile)                  # replace -, draughts min  score
 gfile <- as.numeric(gfile)                          # game file
+stopifnot(!all(is.na(gfile)))                       # decimal symbol must be point (as in R)
+
 dim(gfile) <- dim(opponents)
 dimnames(gfile) <- dimnames(opponents)
 
@@ -254,6 +259,7 @@ raticol <- which(regexpr("^([Rr]a?ti?n?g$|FMJD|APRO)$", trimws(names(rdtable))) 
 aor <- rowMeans(matrix(as.numeric(rdtable[, raticol][opponents]), nrow(rdtable)), na.rm = TRUE) #average opponent rtg
 
 results <- (gfile - t.sparse(gfile, opponents)) / 2 # skew symmetric results
+stopifnot(all(abs(colSums(results, na.rm = TRUE) - 0) < .Machine$double.eps ^ 0.5)) # zero sum game
 
 wins   <- matrix(rowSums(results >  0, na.rm = TRUE)) # number of wins
 draws  <- matrix(rowSums(results == 0, na.rm = TRUE)) # number of draws
@@ -375,4 +381,3 @@ rm(wts, elist, oppNOK, Parx)                                      # tidy up inte
 
 # --------------------------------------------------#
 # source('report.r', echo=FALSE, print=TRUE)        #
-# source('brr.r', echo=FALSE, print=TRUE)           #
