@@ -14,9 +14,15 @@
 
 cat('\n', paste("----------------------------- nr.r", sep=", "), '\n')
 
-celo <- 400/log(10)                                 # Elo constant in Logistic distribution
-Pr  <- function(x) {return(1./(1. + exp(-x)))}      # logistic probability function
-dPr <- function(x) {e <- Pr(x); return(e * (1-e))}  # derivative
+# Logistic distribution
+celo <- 400/log(10)                                 # Elo constant to convert to Elo domain
+Pr  <- function(x) {return(1./(1. + exp(-x)))}      # Logistic probability function
+dPr <- function(x) {e <- Pr(x); return(e * (1-e))}  # Derivative
+
+# Normal distribution
+# celo <- 2000 / 7                                  # Elo constant to convert to Elo domain
+# Pr  <- function(x) {return(pnorm(x, 0, 1))}       # Expectation by the normal distribution
+# dPr <- function(x) {return(dnorm(x, 0, 1))}       # Derivative, density
 
 #-------------------------------------------------------
 # W_expected, expected score
@@ -26,17 +32,17 @@ dPr <- function(x) {e <- Pr(x); return(e * (1-e))}  # derivative
 # ------------------------------------------------------
 W_expected <- function(x) {
   dpopp <- x[,1] - x[as.vector(opponents)];         # difference between own rating, opponent rating
-  dim(dpopp) = dim(opponents)                       # indexed by player, round         
+  dim(dpopp) = dim(opponents)                       # indexed by player, round
 
-  Jf     <<- -dPr(dpopp / celo) * Par               # Jacobian opponents: Jf(x) = δfi/δxk, k != i (global assign)
+  Jf     <<- -dPr(dpopp) * Par                      # Jacobian opponents: Jf(x) = δfi/δxk, k != i (global assign)
   Jfdiag <<- -rowSums(Jf, na.rm = TRUE)             # Gradient (diag):    Jf(x) = δfi/δxi, Sum(Jf) == 0
 
-  Wem <- (Pr(dpopp / celo) - 0.5)                   # expected score above average(n x r)
+  Wem <- (Pr(dpopp) - 0.5)                          # expected score above average(n x r)
   stopifnot(sum(Wem, na.rm=TRUE) < .Machine$double.eps * length(Wem)) # sum of rating differences
   We <- as.matrix(rowSums(Wem, na.rm=TRUE)) * Par   # expected score (n)
-  
+
   return(rowSums(Wem, na.rm=TRUE) * Par)            # expected score (indexed by player)
-}            
+}
 
 #----------------------------------------------------------------
 # Conjugate gradients, solve A.x = b
@@ -49,10 +55,10 @@ cg.solve  <- function(A, Adiag, b, reltol=NULL) {
   # A                                               # matrix
   # Adiag                                           # A[i,i]
   # opponents                                       # sparse matrix representation
-  # reltol =										# relative error tolerance 
+  # reltol =										# relative error tolerance
 
   if (is.null(reltol)) reltol <- sqrt(.Machine$double.eps)
-  
+
   if (length(b) == 0L) return(b)
   x <- matrix(0, length(b), 1)                      # we assume x0 = 0
   r <- b                                            # Residual, r = b - A.x; x = 0
@@ -67,7 +73,7 @@ cg.solve  <- function(A, Adiag, b, reltol=NULL) {
     Ap <- rowSums(A * p[as.vector(opponents)], na.rm = TRUE) # Ap <- A.p
     cgcum <<- cgcum + 1                             # count A.p iterations (global assignment)
     Ap <- Ap + Adiag * p                            # sparse file multiplication
-    pAp <- sum(p * Ap)                              # A-orthogonal 
+    pAp <- sum(p * Ap)                              # A-orthogonal
     if (pAp < .Machine$double.eps) break            # search directions exhausted
 
     alpha <- rsold / pAp
@@ -103,47 +109,49 @@ cgcum <- 0                                          # count cg iterations cumula
 # sqrt(kappa)/2 * log(2/cgeps) > Npls
 cgeps <- exp(-2)                                    # cg residual error relative to initial residual, not too small.
 
-steptol <- (1.0e-3 / 3)                             # stdev(diff) < steptol, 3 sigma change in diff after <<<e-three>>> decimals
+steptol <- (1.0e-3 / 3 / celo)                      # stdev(diff) < steptol, 3 sigma change in diff after <<<e-three>>> decimals
 maxit <- npls + 5L                                  # maximum number of nr iterations, 5 for small npls
 maxit <- 100
 We    <- W_expected(rrtg)                           # expected score
-res0 <- We - W                                      # residual at x=0 
+res0 <- We - W                                      # residual at x=0
 
 L2step <- NA
 #----------------------------------------------------
-# find roots of f(x) = We(x) - W 
+# find roots of f(x) = We(x) - W, sd = 1
 # ---------------------------------------------------
-stime <- system.time(   
+stime <- system.time(
 for (it in seq_len(maxit)){
 
   We  <- W_expected(rrtg)                           # Expected score
   res <- We - W                                     # compute difference We, W, + Jacobian
-  if (crossprod(res) < .Machine$double.eps) break   # solution found 
-  kappa = max(Jfdiag) / min(Jfdiag[Jfdiag[]>0])     # condition number, λmax /  λmin 
+  if (crossprod(res) < .Machine$double.eps) break   # solution found
+  kappa = max(Jfdiag) / min(Jfdiag[Jfdiag[]>0])     # condition number, λmax /  λmin
   cg_th <- round(sqrt(kappa) * log(2 / cgeps) / 2 +0.5)  # rate of convergence CG method
-  
+
 # --------------------------------------------------------------------
 # calculate next step by multivariate Newton Raphson update
 # dx = Inverse([Jf(x)]).f(x), or solve unknown dx in Jf(x).dx = -f(x)
 # --------------------------------------------------------------------
   nr_step <- cg.solve(Jf, Jfdiag, res, cgeps)
-  rrtg.n <- rrtg - (nr_step * celo)
-  stopifnot( abs(mean(rrtg.n, na.rm = TRUE)) < sqrt(.Machine$double.eps)) # average rating is invariant  
+  rrtg.n <- rrtg - nr_step
+  stopifnot( abs(mean(rrtg.n, na.rm = TRUE)) < sqrt(.Machine$double.eps)) # average rating is invariant
 #---------------------------------------------------------------------
-                                                   
+
   iterations  <- cbind(iterations, rbind(rrtg.n, kappa, cg_th, cgcum)) # column bind, append next iteration
   diff <- rrtg.n - rrtg                             # change in iteration
   L2step <- sqrt(sum(diff*diff, na.rm=TRUE) )       # L2 norm, sqrt(dot product diff.diff)
   convergence <- cbind(convergence, L2step)         # append to convergence
-                                                    
+
   rrtg <- rrtg.n                                    # next rrtg approximation
-                                                    
+
   if (sd(diff, na.rm=TRUE) < steptol ) break        # change in rating below limit
 }
 
 )
 
-# rrtg <- rrtg - mean(rrtg, na.rm = TRUE)           # reset average rating to zero    
+rrtg <- rrtg * celo                                 # Convert to Elo domain.
+
+# rrtg <- rrtg - mean(rrtg, na.rm = TRUE)           # reset average rating to zero
 # if (min(rrtg) < 1) rrtg <- rrtg - min(rrtg) + 1   # assure ratings are strictly positive (compatible with Sevilla)
 # rrtg <- round(rrtg)                               # round to integer
 #---------------------------------------------------------------------
@@ -167,10 +175,10 @@ cat(sprintf("# spelers     = %5d      , # rondes = %d\n", npls,  nrds)      )
 cat(sprintf("CG iterations = %5d (cum), reltol   = %g\n", cgcum,  cgeps) )
 cat(sprintf("NR iterations = %5d      , maxit    = %#.1f\n", it, maxit) )
 cat(sprintf("SD x-Diff     = %7.2g    , x_tol    = %5.2g\n", sd(diff, na.rm=TRUE), steptol) )
-cat(sprintf("L2 Residual   = %5.2g\n" , sqrt(sum(res*res)) )) 
+cat(sprintf("L2 Residual   = %5.2g\n" , sqrt(sum(res*res)) ))
 cat(sprintf("SD Residual   = %5.2g\n" , sd(res, na.rm=TRUE) ))
-cat(sprintf("XN Residual   = %5.2g\n" , max(abs(res), na.rm=TRUE) )) # max norm 
-cat("\n")                                                                                           
+cat(sprintf("XN Residual   = %5.2g\n" , max(abs(res), na.rm=TRUE) )) # max norm
+cat("\n")
 }
 print(stime)
 
@@ -184,7 +192,7 @@ lytnr     <- layout_with_fr(g)
 lytnr[,2][which(!is.na(rrtg))] <- rrtg[which(!is.na(rrtg))]
 lytnr <- norm_coords(lytnr, ymin = -1, ymax = 1)
 } )
-    
+
 if (npls < 500L) {
  dev.new()
  plot(g, layout=lytnr, main = "Relative Elo Rating" )

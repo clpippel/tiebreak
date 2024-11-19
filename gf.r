@@ -14,6 +14,7 @@
 #   2023-feb-21, SCCs*Players indexed by level simplified by data.frame.
 #                Set working directory using R_USER
 #   2024-jul-08  European style csv, force automatic rownames.
+#   2024-aug-10  Crosstable, allow for no games.
 #
 #   CSV, Comma Separated Values (RFC 4180)
 #   remove manually "=" from ="0" (excel)
@@ -65,7 +66,7 @@
 # useful R:
 # typeof(), mode(), storage.mode(), # str(), structure(), dim(), attributes()
 # class(), methods(class="igraph")
-# dput(), length(), object.size(), nchar()
+# dput(), length(), object.size(), tracemem(), nchar()
 # vector("character", 10), numeric(5), logical(5), list()
 # names, dimnames, dim, setNames
 # Integer constant, 1L, 2L
@@ -89,8 +90,9 @@
 # remove.packages(pkgs, lib)     # remove package
 #
 
+# cat(rm(list = ls()))                                # remove all objects <-----------------+
+
 setwd(paste0(Sys.getenv("R_USER"), "/Work"))        # set working directory
-cat(rm(list = ls()))                                # remove all objects <-----------------+
 if (!require(igraph)) install.packages("igraph")    # install.packages("igraph") or use menu
 igraph_version()                                    # igraph version
 sessionInfo()
@@ -208,20 +210,23 @@ if (isTRUE(FMJD)) {                                 # FMJD, 10x10 draughts, form
   sbs <- regexpr(pt1, rdm, perl = TRUE)             # index of the result character
   opponents <- structure(as.integer(substr(rdm, sbs + 1, nchar(rdm) - 1)), dim = dim(rdm), dimnames = dimnames(rdm)) # force matrix
   res_sym   <-        substr(rdm, 1, sbs - 1)       # symmetric representation
+  col_sym   <- substr(rdm, nchar(rdm), nchar(rdm))  # color symbol
 } else {                                            # chess format 14b1
   pt1 <- paste("(?<=[0-9])[wbzshax][", halfch, "0-9]", sep = "") # regex pattern to find result and opponent
   sbs <- regexpr(pt1, rdm, perl = TRUE)             # start, base of the result character
   opponents <- structure(as.integer(substr(rdm, 1, sbs - 1)), dim = dim(rdm), dimnames = dimnames(rdm)) # force matrix
   res_sym   <- substr(rdm, sbs + 1, nchar(rdm))     # symmetric representation
+  col_sym   <- substr(rdm, sbs, sbs)                # color symbol
 }
 oppNOK <- !is.na(opponents) & (opponents > npls | opponents < 1) # quick test: negative or to big and not NA
+stopifnot(all(apply(col_sym, 2, function(x) {sum(x == "w")}) == apply(col_sym, 2, function(x) {sum(x == "b")})))
 
 if (any(oppNOK)) {
   print(ifelse(!oppNOK, ".", opponents), quote = FALSE)
   stop("Opponent(s) out of range")
 }
 
-opponents[res_sym %in% c("+", "-")] <- NA           # clear opponents with forfeit results
+opponents[res_sym %in% c("+", "-", "=")] <- NA      # clear opponents with forfeit results
 res_sym[is.na(opponents)] <- NA                     # clear results with no opponent
 
 rm(fcon, pt1, sbs, trow)                            # tidy up intermediate vars
@@ -359,10 +364,11 @@ print(qg)
 
 # create cross matrix nrrr = 1 for overview
 if (npls < 64) try({
-  laplacian <- -table(rep(seq(npls), nrds), c(opponents)) # frequency table of games, including games against self
+  laplacian <- -table(rep(seq(npls), nrds), c(opponents),  useNA="no") # frequency table of games, including games against self
   diag(laplacian) <- -rowSums(laplacian, na.rm = TRUE)    # Laplacian matrix, indexed by player
   lev <- Mod(eigen(laplacian)$values)                     # eigen vector Laplacian
-  kappa <- max(lev) / min(lev[lev > 1e-5]); names(kappa) <- "Kappa matches matrix"; print(kappa)
+  kappa <- max(lev) / min(lev[lev > 1e-5]); names(kappa) <- "Kappa matches matrix";
+  print(kappa)
 
   print(try(system.time(crosstab <- as.matrix(g[]))))
   crosstab[(as.matrix(g[]) == 0 & t(as.matrix(g[]) == 0))] <- "."
