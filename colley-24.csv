@@ -1,5 +1,6 @@
 ;Colley-24 -  - Groep 1;;;;;;
 ;https://www.colleyrankings.com/matrate.pdf
+;grspar = c(2, 1), grsm, eps = 2, y = 1
 ;c(19, 24, 23, 22, 27) / 46
 Pos;Naam;1;2;3;4;5
 1;a;bye;2w.;3z1;4w0;5z0
