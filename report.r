@@ -29,13 +29,15 @@ ylsq    <- y
 
 # https://en.wikipedia.org/wiki/Rule_of_succession  # Laplace: (1 + successes) / (N + 2)
 # https://www.colleyrankings.com/matrate.pdf
-grspar = c(2, 1);                                   # Colleys matrix, ε = 3, three outcomes: 0, 1, 2
+grspar = c(3, 800 / Par);                           # Colleys matrix, ε = 3, three outcomes: 0, 1, 2
+                                                    # or 2 because number of games in swiss is small
+                                                    # Convert to Elo domain
 source('grsm.r', echo=FALSE)
-Lapl <- growsums + Par / 2                          # Note: move from skew symmetric to range [0, Par]
-elonLapl <- elon
-yLapl    <- y 
+L400 <- growsums                                    # Note: move from skew symmetric to range [0, Par]
+elonLap  <- elon
+yLap     <- y 
 
-colnames(Lapl)   <- "Lapl"
+colnames(L400)   <- "L400"
 colnames(avg400) <- "A400"
 colnames(lsq)    <- "lsq"
 
@@ -54,15 +56,15 @@ rank1 <- matrix(rank(-lsq   , ties.method= "min")); colnames(rank1) <- "  Rk"
 rank2 <- matrix(rank(-rbhz,   ties.method= "min")); colnames(rank2) <- "  Rk"
 rank3 <- matrix(rank(-avg400, ties.method= "min")); colnames(rank3) <- "  Rk"
 rank4 <- matrix(rank(-rrtg,   ties.method= "min")); colnames(rank4) <- "  Rk"
-rank5 <- matrix(rank(-Lapl,   ties.method= "min")); colnames(rank5) <- "  Rk"
+rank5 <- matrix(rank(-L400,   ties.method= "min")); colnames(rank5) <- "  Rk"
 rank6 <- matrix(rank(-grs,    ties.method= "min")); colnames(rank6) <- "  Rk"
 rank7 <- matrix(rank(-pev,    ties.method= "min")); colnames(rank7) <- "  Rk"
 rank8 <- matrix(rank(-fbpts,  ties.method= "min")); colnames(rank8) <- "  Rk"
 
 rrtgf <- rrtg
-Roffset <- NA
-if (length(raticol) == 1L) Roffset <- mean(as.numeric(sub("[ABC] ", "", rdtable[,raticol]) ), na.rm =TRUE)
-if (is.finite(Roffset)) rrtgf <- rrtgf + Roffset
+# Roffset <- NA
+# if (length(raticol) == 1L) Roffset <- mean(as.numeric(sub("[ABC] ", "", rdtable[,raticol]) ), na.rm =TRUE)
+# if (is.finite(Roffset)) rrtgf <- rrtgf + Roffset
 
 N                <- wins + draws + losses
 pctW             <- W / (N * Par)
@@ -79,7 +81,7 @@ report1 <- matrix(round(lsq   ,3)); colnames(report1) <- "lsq"
 report2 <- matrix(round(rbhz  ,3)); colnames(report2) <- "RBhz"
 report3 <- matrix(round(avg400,0)); colnames(report3) <- "A400"
 report4 <- matrix(round(rrtgf))   ; colnames(report4) <- "rElo"
-report5 <- matrix(round(Lapl  ,3)); colnames(report5) <- "Lapl"
+report5 <- matrix(round(L400,0))  ; colnames(report5) <- "L400"
 report6 <- matrix(round(grs   ,3)); colnames(report6) <- paste0("grs",elongrs)
 report7 <- matrix(round(pev   ,3)); colnames(report7) <- "Pev"
 report8 <- matrix(round(fbpts ,3)); colnames(report8) <- "f-bets"
@@ -92,9 +94,8 @@ score[lengths(regmatches(score, gregexpr(".", score, fixed=TRUE))) == ncol(t1)] 
 rm(t1, t2)
 
 report  <- cbind(rdtable[,gfrmcols]
-                , N, wins, draws, points, s, W, round(pctW, 2)
+                , N, wins, losses, points, s, W, round(pctW, 2)
                 , rank1, report1, rank2, report2, rank3, report3, rank4, report4, rank5, report5, rank6, report6, rank7, report7, rank8, report8, score)
-
 # report[is.na(report)] <- Inf
 
 # sort report by Points, rElo, AVG400
@@ -109,7 +110,7 @@ cat(gfheader, sep='\n')
 cat(sprintf("\nGamefile: %dx%d(nrrr = %d), Par = %g", npls, nrds, nrrr, Par), crlf)
 cat(sprintf("lsq  : e'= %2d, y = %d", elonlsq, ylsq), crlf)
 cat(sprintf("A400 : e'= %2d, y = %g", 0, 800 / Par), crlf)
-cat(sprintf("Lapl : e'= %2d, y = %d", elonLapl, yLapl), crlf)
+cat(sprintf("L400 : e'= %2d, y = %d", elonLap, yLap), crlf)
 cat(sprintf("grs  : e'= %2d, y = %d (= e' + n.m)", elongrs, ygrs), crlf, crlf)
 
 print(report, quote=FALSE, row.names = FALSE, , na.print = ".", max=200*ncol(report))

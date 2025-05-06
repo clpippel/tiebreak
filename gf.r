@@ -1,4 +1,4 @@
-# gf.r
+#   gf.r
 # Read game file, make tables to calculate rankings.
 # Unlicense (Ø) 2021 CLP, IJmuiden
 # Hieke Hylkema (Lin Yutan):
@@ -37,6 +37,7 @@
 #                     https://toernooibase.kndb.nl/opvraag/matrixnewfmjd.php
 #
 #   Program flow:
+#   - Copy, paste this code into R.
 #   - read inputfile into rdtable
 #   - delete columns not containing games, output in rdm (ronde dossier matrix)
 #   - create opponent and results matrix (n x r)
@@ -257,8 +258,8 @@ names(Par) <- "Maximal win score (1=chess, 2=draughts, 3 = football)"; Par
 points <- matrix(rowSums(gfile, na.rm = TRUE))      # points, ex bye results
 bhlz   <- rowSums(matrix(points[as.vector(opponents)], nrow(points)), na.rm = TRUE) # Buchholz, Weerstand
 bhzp   <- rowSums(matrix(bhlz[as.vector(opponents)], nrow(points)), na.rm = TRUE)   # Solkoff plus
-Nstl   <- rowSums(gfile * points[as.vector(opponents)], na.rm = TRUE) # Sonneborg-Berger, Neustadtl
-FB     <- Nstl / rowSums(t.sparse(gfile, opponents), na.rm = TRUE)    # Fairbets first iteration
+nstl   <- rowSums(gfile * points[as.vector(opponents)], na.rm = TRUE) # Sonneborg-Berger, Neustadtl
+FB     <- nstl / rowSums(t.sparse(gfile, opponents), na.rm = TRUE)    # Fairbets first iteration
 
 raticol <- which(regexpr("^([Rr]a?ti?n?g$|FMJD|APRO)$", trimws(names(rdtable))) > 0) # Rating column
 aor <- rowMeans(matrix(as.numeric(rdtable[, raticol][opponents]), nrow(rdtable)), na.rm = TRUE) #average opponent rtg
@@ -381,7 +382,7 @@ if (npls < 64) try({
 
 print(sprintf("# spelers = %d, aantal rondes = %d ", npls,  nrds), quote = FALSE)
 
-edge_density(as.undirected(g, mode = c("collapse")))
+edge_density(as_undirected(g, mode = c("collapse")))
 
 rm(wts, elist, oppNOK, Parx)                                      # tidy up intermediate vars
 
