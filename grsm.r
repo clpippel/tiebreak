@@ -23,6 +23,7 @@
 # https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.newton_krylov.html#scipy.optimize.newton_krylov
 # 19-01-2023, LSM naar elon
 # 10-02-2023, ys
+# 12-50-2025, gsrpar for Colley ranking
 
 maxlines = 500                                      # max players to print
 cat("----------------------------- grsm.r", ", grspar = ", if(exists("grspar")) grspar else "*" , '\n')
@@ -77,7 +78,7 @@ if (exists("grspar") && length(grspar) > 0) {
 	if (length(grspar) > 1) y <- grspar[2]
 	else {
 	  if (elon == 0)                     y <- 1      # LSM, least squares
-      else if (npls <= 2)                y <- 1      # grs requires more then two players
+      else if (npls <= 2)              y <- 1      # grs requires more then two players
 	  else if ( elon < (npls-2) * nrrr ) y <- 1      # grs, not well formed, y is scale factor
 	  else                               y <- elon + npls * nrrr;    
     }	
@@ -106,7 +107,7 @@ growsums <- cg.solve(Lmat, Ldiag, ys)               # solve lineair equation
 
 {
 message("Solve: x | (e'.I + L)x = y.s where y = e'+ n.m, L = Laplacian of game graph")
-message(sprintf("e' = %d, y = %d, n = %d, RR-rounds = %d", elon, y, npls, nrrr) )  
+message(sprintf("e' = %d, y = %.2f, n = %d, RR-rounds = %d", elon, y, npls, nrrr) )  
 
 # validate solution
 x <- growsums
@@ -137,12 +138,19 @@ mask_rmax  <- ifelse(results == rmax, 0, NA)        # wins, maximal win, win / l
 # payoff function f must be non-negative/positive for rmax/rmin (1989, theorem 3, eq 20)
 {
   gain <- results + mask_rmax - dgrs / y            # gain of max result must be positive (loon naar werken)
-  if ( TRUE %in% (min(gain, na.rm=TRUE) < 0) ) { 
-	cat(sprintf("Negative gain in rmax: %g\n", rmax))
-    if (!exists("report_tpr")) print(ifelse(gain > 0, NA, gain), na.print = "." , quote = FALSE, digits = 2)
-  }
-  else {
-	cat(sprintf("Monotone, max gain : %g\n", max(gain, na.rm=TRUE)))
+  gneg <- setNames(data.frame(which(gain  < 0, arr.ind = TRUE),
+                              gain[which(gain < 0)]
+                             ), c("Player", "Round", "Gain")
+                  )
+  if ( nrow(gneg) > 0 ) {
+    cat("Negative gain in max score", "\n")
+    head(gneg)
+  } else {
+    cat("Pl, Rd, Max gain = ",
+        which(gain == max(gain, na.rm=TRUE), arr.ind = TRUE),
+        max = max(gain, na.rm=TRUE),
+        "\n"
+    )
     sc_monotone <- TRUE
   }
 }
@@ -153,9 +161,9 @@ colnames(rkgrs) <- c("Rk", ifelse(exists("grspar") && length(grspar) > 0, "LSSum
 { 
 cat(sprintf("GRS parameters: e=%.2f, y=%.2f\n", elon, y))
 cat(sprintf("CG convergence: kappa=%g, cg_th=%d, # of iterations=%g\n", kappa, cg_th, cgcum))
-if (!exists("report_tpr")) print(rkgrs[1:(min(nrow(rkgrs),maxlines)),], digits=3, noquotes=TRUE)
+if (!exists("report_tpr")) print(head(rkgrs[1:(min(nrow(rkgrs),maxlines)),]), digits=3, noquotes=TRUE)
 }
- 
+
 dev.new()
 try({
 lytgrs     <- layout_with_fr(g)

@@ -4,13 +4,14 @@
 #  6-02-2023, Recalibrate Lapl
 # 10-02-2023, Colley Matrix, recalibrate
 # 15-05-2023, score calculation corrected for R3.0.0
+# 11-05-2025, Colley rankings in Elo domain [-400, +400]
 
 report_tpr <- TRUE									# Signal reporting
 
 source('nr-lin.r', echo=FALSE)                      # relative AVG ratings, newton iteration
 avg400  <- rrtg                                     # P(x) = ½ + avg400 / 800   ; AVG400 probability
 
-source('nr.r', echo=FALSE)                          # relative Elo ratings, newton iteration
+source('nr-elo.r', echo=FALSE)                      # relative Elo ratings, Log distribution, Newton Raphson iteration
 
 grspar <- c()                            
 source('grsm.r', echo=FALSE)                        # Generalised Row Sum Ratings
@@ -29,11 +30,12 @@ ylsq    <- y
 
 # https://en.wikipedia.org/wiki/Rule_of_succession  # Laplace: (1 + successes) / (N + 2)
 # https://www.colleyrankings.com/matrate.pdf
-grspar = c(3, 800 / Par);                           # Colleys matrix, ε = 3, three outcomes: 0, 1, 2
-                                                    # or 2 because number of games in swiss is small
-                                                    # Convert to Elo domain
+# Colleys matrix, ε = 3, three outcomes: 0, 1, 2
+# or 2 because number of games in swiss is small
+# Colley ranking with mean = 0
+grspar = c(2, 1 / Par); 
 source('grsm.r', echo=FALSE)
-L400 <- growsums                                    # Note: move from skew symmetric to range [0, Par]
+L400     <- growsums * 800                          # Convert to [0% - 100%], Elo domain
 elonLap  <- elon
 yLap     <- y 
 
@@ -110,8 +112,8 @@ cat(gfheader, sep='\n')
 cat(sprintf("\nGamefile: %dx%d(nrrr = %d), Par = %g", npls, nrds, nrrr, Par), crlf)
 cat(sprintf("lsq  : e'= %2d, y = %d", elonlsq, ylsq), crlf)
 cat(sprintf("A400 : e'= %2d, y = %g", 0, 800 / Par), crlf)
-cat(sprintf("L400 : e'= %2d, y = %d", elonLap, yLap), crlf)
-cat(sprintf("grs  : e'= %2d, y = %d (= e' + n.m)", elongrs, ygrs), crlf, crlf)
+cat(sprintf("L400 : e'= %2d, y = %.2f", elonLap, yLap), crlf)
+cat(sprintf("grs  : e'= %2d, y = %.2f (= e' + n.m)", elongrs, ygrs), crlf, crlf)
 
 print(report, quote=FALSE, row.names = FALSE, , na.print = ".", max=200*ncol(report))
 }

@@ -1,4 +1,4 @@
-#   gf.r
+# gf.r
 # Read game file, make tables to calculate rankings.
 # Unlicense (Ø) 2021 CLP, IJmuiden
 # Hieke Hylkema (Lin Yutan):
@@ -15,6 +15,11 @@
 #                Set working directory using R_USER
 #   2024-jul-08  European style csv, force automatic rownames.
 #   2024-aug-10  Crosstable, allow for no games.
+#   2025-may-06  Vectorized version of t.sparse
+#                https://stackoverflow.com/questions/79608748/
+#                how-to-remove-and-speed-up-a-for-loop-over-matrix-columns-by-vectorisation
+#   2025-may-09  Crosstable by tapply
+#                https://stackoverflow.com/questions/68970385/
 #
 #   CSV, Comma Separated Values (RFC 4180)
 #   remove manually "=" from ="0" (excel)
@@ -65,13 +70,14 @@
 # edit(table) to inspect
 #
 # useful R:
-# typeof(), mode(), storage.mode(), # str(), structure(), dim(), attributes()
+# typeof(), mode(), storage.mode()
+# str(), structure(), dim(), attributes(), summary()
 # class(), methods(class="igraph")
 # dput(), length(), object.size(), tracemem(), nchar()
 # vector("character", 10), numeric(5), logical(5), list()
 # names, dimnames, dim, setNames
 # Integer constant, 1L, 2L
-# head, tail, nrow(), ncol()
+# head, tail, nrow(), ncol(), complete.cases()
 # sapply(dataframe, class)
 # serialize(), readRDS(), saveRDS(), sink("r-output.txt"), sink()
 # as_edgelist, get.edgelist
@@ -91,7 +97,7 @@
 # remove.packages(pkgs, lib)     # remove package
 #
 
-# cat(rm(list = ls()))                                # remove all objects <-----------------+
+cat(rm(list = ls()))                                # remove all objects <-----------------+
 
 setwd(paste0(Sys.getenv("R_USER"), "/Work"))        # set working directory
 if (!require(igraph)) install.packages("igraph")    # install.packages("igraph") or use menu
@@ -117,12 +123,12 @@ sessionInfo()
 # https://arxiv.org/abs/math/0602171v3
 # ----------------------------------------------------
 
-# transpose sparse matrix
+# Transpose sparse matrix, no for loop.
+# Reverse the outcomes between two opponents.
 t.sparse <- function(m, opp) {
-  for (k in seq_len(ncol(m))) {
-    m[, k] <- m[, k][opp[, k]]
-  }
-  return(m)
+  matrix( m[ matrix(c(opp, col(opp)), ncol = 2)],
+          ncol = ncol(opp)
+        )
 }
 
 # transpose directed weighted graph, including isolates
@@ -352,7 +358,7 @@ plot(qg)
 # ---------------------------------------------------------------------------------------
 # compute layers, shortest paths with negative weights (bellman-ford)
 qt <- simplify(qg, remove.loops = TRUE)             # remove edges to self
-stopifnot(is_dag(qt))                              # no cycles, acyclic
+stopifnot(is_dag(qt))                               # no cycles, acyclic
 
 qt <- set_edge_attr(qt, name = "weight", value = - 1)  # longest path = shortest negative
 dis_SCC <- (-distances(qt, v = (V(qt)), mode = "in"))  # matrix of VxV distances of shortest paths
@@ -363,28 +369,29 @@ if (SCC$no > 1L)
   print(data.frame(layers, SCC = groups(SCC)))
 print(qg)
 
-# create cross matrix nrrr = 1 for overview
+# Analyse eigenvalues, condition number
 if (npls < 64) try({
   laplacian <- -table(rep(seq(npls), nrds), c(opponents),  useNA="no") # frequency table of games, including games against self
   diag(laplacian) <- -rowSums(laplacian, na.rm = TRUE)    # Laplacian matrix, indexed by player
   lev <- Mod(eigen(laplacian)$values)                     # eigen vector Laplacian
   kappa <- max(lev) / min(lev[lev > 1e-5]); names(kappa) <- "Kappa matches matrix";
   print(kappa)
-
-  print(try(system.time(crosstab <- as.matrix(g[]))))
-  crosstab[(as.matrix(g[]) == 0 & t(as.matrix(g[]) == 0))] <- "."
-  crosstab <- cbind(rdtable[, gfrmcols], crosstab)
-
-  print("Game results")
-  print(head(crosstab, 20), quote = FALSE) # print first lines of tournament
-
 }, silent = FALSE)
+
+# create tournament cross matrix from opponents, res_sym
+# Stackoverflow, questions/79612407/
+idx      <- data.frame(x = c(row(opponents)), y = c(opponents), z = c(res_sym))
+crosstab <- tapply(idx$z, idx[1:2], FUN = paste0, collapse="")
+diag(crosstab) <- "x"
+crosstab <- cbind(rdtable[, gfrmcols], crosstab)    # Add header columns
+print("Cross table")
+print(head(crosstab, 20), quote = FALSE, na.print=".") # print first lines of tournament
 
 print(sprintf("# spelers = %d, aantal rondes = %d ", npls,  nrds), quote = FALSE)
 
 edge_density(as_undirected(g, mode = c("collapse")))
-
-rm(wts, elist, oppNOK, Parx)                                      # tidy up intermediate vars
+gfheader
+rm(raticol, wts, elist, oppNOK, Parx, idx)          # tidy up intermediate vars
 
 # --------------------------------------------------#
 # source('report.r', echo=FALSE, print=TRUE)        #

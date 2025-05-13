@@ -94,12 +94,14 @@ cat(sprintf("It / Maxit        : %d, %g\n", it, maxit) )
 cat(sprintf("SD x-Diff / x_tol : %5.2g, %5.2g\n", sd(diff, na.rm=TRUE), steptol) )
 
 if (!exists("report_tpr")) {
-cat("", sep="\n"); print("Fair bets / Pev"); print(zapsmall(fb, digits = 4))
-cat("", sep="\n"); print("Fb / Pev iterations"); print(iterations, digits = 4)
+  print("Fair bets / Pev"); print(zapsmall(fb, digits = 4))
 }
-cat("Convergence FB", sep="\n"); print(c(convergence), digits = 5)
 if (it <  maxit) cat("Convergence reached\n")
-if (it >= maxit) cat(sprintf(">>> No convergence, steptol = %5.2g, difference = %5.2g, it = %d, maxit = %d\n" , steptol, sd_diff, it, maxit )) 
+if (it >= maxit) {
+  cat(sprintf(">>> No convergence, steptol = %5.2g, difference = %5.2g, it = %d, maxit = %d\n" , steptol, sd_diff, it, maxit )) 
+  print("Fb / Pev iterations"); print(iterations, digits = 4)
+  print("Convergence FB");      print(c(convergence), digits = 5)
+}
 print(stime)
 
 # plot fair bet main SCC

@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------
-# nr.nr
+# nr-elo.r
 # calculate relative ratings (x) as roots of We(x) - W
 # root finding with Newton Raphson
 # compute ratings of most frequent SCC
