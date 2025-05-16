@@ -1,0 +1,17 @@
+; Wereldkampioenschap KNDB 1948
+; https://toernooibase.kndb.nl/opvraag/standen.php?&kl=46&Id=670
+;Blokrooster
+;fill in FMJD-report
+Pl;Sno;p2;Title;Name;Cn;rating;R1;R2;R3;R4;R5;R6;R7;R8;R9;R10;R11;R12;R13;R14;R15;R16;R17;R18;R19;R20;R21;R22;Pt 
+ 1; 2; 9;;Piet Roozenburg;nl;;2/7w;2/10b;2/2b;2/5w;2/4b;2/8b;2/6w;2/11w;;1/9b;1/3w;2/7b;2/10w;2/2w;2/5b;2/4w;1/8w;;2/11b;2/6b;2/9w;2/3b;37
+ 2; 4; 7;;Reinier Cornelis Keller;nl;;2/5b;2/7w;0/1w;2/10b;2/8b;1/4b;;1/3w;1/9w;2/11b;1/6w;2/5w;2/7b;0/1b;2/10w;2/8w;1/4w;2/9b;1/3b;;2/11w;0/6b;28
+ 3; 8; 3;;Pierre Ghestem;fr;;2/6b;1/9b;;2/8w;0/7w;2/11w;2/4b;1/2b;2/10w;0/5w;1/1b;0/6w;2/9w;;1/8b;2/7b;2/11b;2/10b;1/2w;1/4w;2/5b;0/1w;26
+ 4;11;10;;Oscar Verpoest;be;;2/10b;2/11b;0/6w;2/9w;0/1w;1/2w;0/3w;1/7b;2/8b;;2/5b;2/10w;2/11w;2/6b;2/9b;0/1b;1/2b;0/8w;1/7w;1/3b;;0/5w;23
+ 5; 6; 2;;Henk Laros;nl;;0/2w;;1/7b;0/1b;2/11b;1/9w;2/10w;0/8w;1/6b;2/3b;0/4w;0/2b;;1/7w;0/1w;2/11w;2/9b;2/6w;2/8b;2/10b;0/3w;2/4b;22
+ 6; 7; 6;;Georges Post;fr;;0/3w;1/8b;2/4b;2/11w;0/9b;;0/1b;2/10w;1/5w;1/7w;1/2b;2/3b;2/8w;0/4w;2/11b;2/9w;;0/5b;1/10b;0/1w;0/7b;2/2w;21
+ 7; 5; 4;;Dammis van der Staaij;nl;;0/1b;0/2b;1/5w;;2/3b;2/10w;1/9b;1/4w;2/11w;1/6b;1/8w;0/1w;0/2w;1/5b;;0/3w;2/10b;2/11b;1/4b;2/9w;2/6w;0/8b;21
+ 8; 9; 1;;Pierre Perot;fr;;;1/6w;2/9w;0/3b;0/2w;0/1w;2/11b;2/5b;0/4w;2/10b;1/7b;;0/6b;1/9b;1/3w;0/2b;1/1b;2/4b;0/5w;1/11w;2/10w;2/7w;20
+ 9;10; 8;;Henri Chiland;fr;;1/11w;1/3w;0/8b;0/4b;2/6w;1/5b;1/7w;;1/2b;1/1w;2/10b;2/11b;0/3b;1/8w;0/4w;0/6b;0/5w;0/2w;;0/7b;0/1b;2/10w;15
+10; 1; 5;;Joseph Demesmaecker;be;;0/4w;0/1w;2/11b;0/2w;;0/7b;0/5b;0/6b;0/3b;0/8w;0/9w;0/4b;0/1b;1/11w;0/2b;;0/7w;0/3w;1/6w;0/5w;0/8b;0/9b;4
+11; 3;11;;Georges Rostan;ch;;1/9b;0/4w;0/10w;0/6b;0/5w;0/3b;0/8w;0/1b;0/7b;0/2w;;0/9w;0/4b;1/10b;0/6w;0/5b;0/3w;0/7w;0/1w;1/8b;0/2b;;3
+# 1, 2, 7, 3, 4, 8, 5, 9, 10, 11, 6
