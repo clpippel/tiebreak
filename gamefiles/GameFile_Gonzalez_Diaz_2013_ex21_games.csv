@@ -22,10 +22,7 @@ Pl;Name; 1;  2;  3;  4;  5; 1b; 2b; 3b; 4b; 5b; 1c; 2c; 3c; 4c; 5c; 6c; 7c; 8c; 
 # least_sq = lsq * 2
 # r-Buch   = rbhz (=lsq)
 # max-lik  = rrtg / (400/log(10))
-# grs      = c(34528, 36036, -70564) / 3403, elongrs = 26, ygrs = 104
-# GRS      = grs / elongrs
+# grs      = c(34528, 36036, -70564) / 3403
+# GRS      = grs / elongrs, elongrs = (npls - 2) * nrrr, nrrr = 26
 # rbhz = c(152, 49, -201 ) / 570
 # pev =  c(125, 30, 1)
-#
-# In grsm.r, elon <- (npls-1) * nrrr;
-    
