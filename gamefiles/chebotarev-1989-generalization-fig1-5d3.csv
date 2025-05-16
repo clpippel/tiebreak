@@ -1,0 +1,11 @@
+;ResearchGate;Pavel Chebotarev; Generalization of the Row Sum Method for Incomplete Paired Comparisons;p1108
+;eps = 4, c(1.998, 0.991, -.439, -3.625, 1.075), page 1108;;;
+;eps = 4, c(1065, 528, -234, -1932, 573) / 533;;;;
+;eps = 0, c(38, 8, -12, -32, -2) / 15; lsq, y = 2;;;
+;Fig 1.1;;;
+Pl;Name;1;2;3
+1;X1;2w2;;
+2;X2;1b0;3w2;4w2
+3;X3;4w2;2b0;
+4;X4;3b0;5b0;2b0
+5;X5;;4w2;

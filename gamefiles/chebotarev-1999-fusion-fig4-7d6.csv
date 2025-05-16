@@ -1,0 +1,10 @@
+Fig. 4 Preferences in the proof of theorem 8. in Fusion, d = max games per player
+Crosstable-binary, GRS = c(2.000, 0.136, 0.087, 1.464, -1.241, -1.050, -1.394), elon=n-2
+Pl;Name;1;2;3;4;5;6;7
+1;X1;;2w1;3b1;4w1;5b1;6w0;7b0
+2;X2;;1b0;;;;;6b1
+3;X3;;7b1;1w0;;;;
+4;X4;5w1;6b1;;1b0;;;
+5;X5;4b0;;;7b1;1w0;;
+6;X6;;4w0;;;;1b1;2w0
+7;X7;;3w0;;5w0;;;1w1
