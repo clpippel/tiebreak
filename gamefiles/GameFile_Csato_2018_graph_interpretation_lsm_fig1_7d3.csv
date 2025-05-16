@@ -1,0 +1,12 @@
+A graph interpretation of the least squares ranking method; https://arxiv.org/pdf/1508.06778v1.pdf ;;;;;;;
+pairwise comparison matrix
+LSM;1.810;0.476;0.810;-0.524;-0.190;-1.524;-0.857;
+c(38, 10, 17, -11, -4, -32, -18) / 21
+Pl;Name;1;2;3;4;5;6;7
+1;S1;3x2;;;;;;
+2;S2;;4x2;;;;;
+3;S3;1x0;;5x2;;;;
+4;S4;;2x0;;6x2;;;
+5;S5;;;3x0;;6x2;;7x2
+6;S6;;;;4x0;5x0;7x0;
+7;S7;;;;;;6x2;5x0
