@@ -25,7 +25,6 @@
 #   remove manually "=" from ="0" (excel)
 # - read and validate gamefile from Chess-Results, Sevilla / FMJD format into:
 #   rdtable, rd = rondedossier (Sevilla)
-# - "FMJD" in second line to recognize FMJD style input
 # - header-lines before title row
 # - title row before first numerical value in first column
 # - comment lines out in csv with #
@@ -192,7 +191,8 @@ rownames(rdtable) <- NULL                           # recalculate rownames
 npls <- nrow(rdtable); names(npls) <- "Number of players"; npls # number of players
 stopifnot(isTRUE(npls > 0))                         # non trivial
 
-FMJD <- max(regexpr("*FMJD-report", gfheader)) > 0L # FMJD report style
+FMJD <- length(grep("\\/[0-9]",  rdtable[1, ])) > 0 # FMJD report style, 1/14b
+WFGS <- length(grep("\\([W|B] ", rdtable[1, ])) > 0 # Wikipedia FIDE_Grand_Swiss_Tournament_2023, 0.5 (W 109)
 
 # columns to remove. Keep: R*10*, .*10*  | 10*..., where * is any sequence
 # drop columns with empty header
@@ -218,21 +218,26 @@ if (isTRUE(FMJD)) {                                 # FMJD, 10x10 draughts, form
   opponents <- structure(as.integer(substr(rdm, sbs + 1, nchar(rdm) - 1)), dim = dim(rdm), dimnames = dimnames(rdm)) # force matrix
   res_sym   <-        substr(rdm, 1, sbs - 1)       # symmetric representation
   col_sym   <- substr(rdm, nchar(rdm), nchar(rdm))  # color symbol
-} else {                                            # chess format 14b1
-  pt1 <- paste("(?<=[0-9])[wbzshax][", halfch, "0-9]", sep = "") # regex pattern to find result and opponent
+} else if (isTRUE(WFGS)){
+pt1         <- "[WB]"                               # FIDE Grand Swiss, 0.5 (W 109)
+  sbs       <- regexpr(pt1, rdm, perl = TRUE)
+  res_sym   <- substr(rdm, 1, sbs - 2)  
+  col_sym   <- substr(rdm, sbs, sbs)
+  opponents <- structure(as.integer(substr(rdm, sbs + 1, nchar(rdm) - 1)),  dim = dim(rdm), dimnames = dimnames(rdm))
+} else {                                            # chess results format 14b1, 14b 1
+  pt1 <- paste("(?<=[0-9])[wbzshax] *[", halfch, "0-9]", sep = "") # regex pattern to find result and opponent
   sbs <- regexpr(pt1, rdm, perl = TRUE)             # start, base of the result character
   opponents <- structure(as.integer(substr(rdm, 1, sbs - 1)), dim = dim(rdm), dimnames = dimnames(rdm)) # force matrix
   res_sym   <- substr(rdm, sbs + 1, nchar(rdm))     # symmetric representation
   col_sym   <- substr(rdm, sbs, sbs)                # color symbol
 }
+stopifnot(all(apply(col_sym, 2, function(x) {sum(x == "w")}) ==
+              apply(col_sym, 2, function(x) {sum(x %in% c("s", "b", "z"))})))
 oppNOK <- !is.na(opponents) & (opponents > npls | opponents < 1) # quick test: negative or to big and not NA
-stopifnot(all(apply(col_sym, 2, function(x) {sum(x == "w")}) == apply(col_sym, 2, function(x) {sum(x == "b")})))
-
 if (any(oppNOK)) {
   print(ifelse(!oppNOK, ".", opponents), quote = FALSE)
   stop("Opponent(s) out of range")
 }
-
 opponents[res_sym %in% c("+", "-", "=")] <- NA      # clear opponents with forfeit results
 res_sym[is.na(opponents)] <- NA                     # clear results with no opponent
 
@@ -385,13 +390,13 @@ crosstab <- tapply(idx$z, idx[1:2], FUN = paste0, collapse="")
 diag(crosstab) <- "x"
 crosstab <- cbind(rdtable[, gfrmcols], crosstab)    # Add header columns
 print("Cross table")
-print(head(crosstab, 20), quote = FALSE, na.print=".") # print first lines of tournament
+print(head(cbind(crosstab, points), 20), quote = FALSE, na.print=".") # print first lines of tournament
 
 print(sprintf("# spelers = %d, aantal rondes = %d ", npls,  nrds), quote = FALSE)
 
 edge_density(as_undirected(g, mode = c("collapse")))
 gfheader
-rm(raticol, wts, elist, oppNOK, Parx, idx)          # tidy up intermediate vars
+rm(raticol, wts, elist, qt, oppNOK, Parx, idx)          # tidy up intermediate vars
 
 # --------------------------------------------------#
 # source('report.r', echo=FALSE, print=TRUE)        #
