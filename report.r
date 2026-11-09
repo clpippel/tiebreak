@@ -1,3 +1,4 @@
+# ---------------------------------------------------------------------------------------------------------------------
 # create report of tiebreak methods
 # Run gf.r first to process input
 # 19-01-2023, Colley matrix, Laplace rule of succession
@@ -30,7 +31,7 @@ ylsq    <- y
 
 # https://en.wikipedia.org/wiki/Rule_of_succession  # Laplace: (1 + successes) / (N + 2)
 # https://www.colleyrankings.com/matrate.pdf
-# Colleys matrix, ε = 3, three outcomes: 0, 1, 2
+# Colleys matrix, ε = 3, three outcomes: 0, 1, 2. y = 1 / Par
 # or 2 because number of games in swiss is small
 # Colley ranking with mean = 0
 grspar = c(2, 1 / Par); 
@@ -54,10 +55,10 @@ source('fairbets.r', echo=FALSE)
 fbpts <- fb * sum(points)                            # normalize by all points (ping-pong model (Volij)
 
 frk <- seq_len(npls)                                 # final rank
-rank1 <- matrix(rank(-lsq   , ties.method= "min")); colnames(rank1) <- "  Rk"
-rank2 <- matrix(rank(-rbhz,   ties.method= "min")); colnames(rank2) <- "  Rk"
-rank3 <- matrix(rank(-avg400, ties.method= "min")); colnames(rank3) <- "  Rk"
-rank4 <- matrix(rank(-rrtg,   ties.method= "min")); colnames(rank4) <- "  Rk"
+rank1 <- matrix(rank(-rrtg,   ties.method= "min")); colnames(rank1) <- "  Rk"
+rank2 <- matrix(rank(-lsq   , ties.method= "min")); colnames(rank2) <- "  Rk"
+rank3 <- matrix(rank(-rbhz,   ties.method= "min")); colnames(rank3) <- "  Rk"
+rank4 <- matrix(rank(-avg400, ties.method= "min")); colnames(rank4) <- "  Rk"
 rank5 <- matrix(rank(-L400,   ties.method= "min")); colnames(rank5) <- "  Rk"
 rank6 <- matrix(rank(-grs,    ties.method= "min")); colnames(rank6) <- "  Rk"
 rank7 <- matrix(rank(-pev,    ties.method= "min")); colnames(rank7) <- "  Rk"
@@ -68,21 +69,21 @@ rrtgf <- rrtg
 # if (length(raticol) == 1L) Roffset <- mean(as.numeric(sub("[ABC] ", "", rdtable[,raticol]) ), na.rm =TRUE)
 # if (is.finite(Roffset)) rrtgf <- rrtgf + Roffset
 
-N                <- wins + draws + losses
-pctW             <- W / (N * Par)
+N_games          <- wins + draws + losses
+pctW             <- W / (N_games * Par)
 
 colnames(points) <- "Pts"
-colnames(N)      <- "N"
+colnames(N_games)<- "N"
 colnames(wins)   <- "+"
 colnames(draws)  <- "="
 colnames(losses) <- "-"
 colnames(s)      <- "t/2"                           # t = Copeland-index, t / 2 == s == rowSums(R)
 colnames(W)      <- paste0(intToUtf8(177), "W")     # plus-minus sign compatible with Ansi
 colnames(pctW)   <- paste0(intToUtf8(177), "%W")    # plus-minus sign compatible with Ansi
-report1 <- matrix(round(lsq   ,3)); colnames(report1) <- "lsq"
-report2 <- matrix(round(rbhz  ,3)); colnames(report2) <- "RBhz"
-report3 <- matrix(round(avg400,0)); colnames(report3) <- "A400"
-report4 <- matrix(round(rrtgf))   ; colnames(report4) <- "rElo"
+report1 <- matrix(round(rrtgf))   ; colnames(report1) <- "rElo"
+report2 <- matrix(round(lsq   ,3)); colnames(report2) <- "lsq"
+report3 <- matrix(round(rbhz  ,3)); colnames(report3) <- "RBhz"
+report4 <- matrix(round(avg400,0)); colnames(report4) <- "A400"
 report5 <- matrix(round(L400,0))  ; colnames(report5) <- "L400"
 report6 <- matrix(round(grs   ,3)); colnames(report6) <- paste0("grs",elongrs)
 report7 <- matrix(round(pev   ,3)); colnames(report7) <- "Pev"
@@ -96,7 +97,7 @@ score[lengths(regmatches(score, gregexpr(".", score, fixed=TRUE))) == ncol(t1)] 
 rm(t1, t2)
 
 report  <- cbind(rdtable[,gfrmcols]
-                , N, wins, losses, points, s, W, round(pctW, 2)
+                , N_games, wins, draws, losses, points, s, W, round(pctW, 2)
                 , rank1, report1, rank2, report2, rank3, report3, rank4, report4, rank5, report5, rank6, report6, rank7, report7, rank8, report8, score)
 # report[is.na(report)] <- Inf
 
@@ -111,7 +112,6 @@ cat(sprintf("%s", fcsv), crlf)
 cat(gfheader, sep='\n')
 cat(sprintf("\nGamefile: %dx%d(nrrr = %d), Par = %g", npls, nrds, nrrr, Par), crlf)
 cat(sprintf("lsq  : e'= %2d, y = %d", elonlsq, ylsq), crlf)
-cat(sprintf("A400 : e'= %2d, y = %g", 0, 800 / Par), crlf)
 cat(sprintf("L400 : e'= %2d, y = %.2f", elonLap, yLap), crlf)
 cat(sprintf("grs  : e'= %2d, y = %.2f (= e' + n.m)", elongrs, ygrs), crlf, crlf)
 
@@ -130,8 +130,8 @@ colnames(rrtg) <- "rElo"
 # 
 # probs <- cbind( avg400 / 800
 #               , lsq    / Par
-#               , grs    / ( (N + 1) * Par)
-#               , s      / ( (N +1 ) * Par)
+#               , grs    / ( (N_games + 1) * Par)
+#               , s      / ( (N_games +1 ) * Par)
 #               , 1      / ( 1 + exp(-rrtg /(400 / log(10))) ) - 0.5
 #               )
 # 
@@ -147,4 +147,3 @@ colnames(rrtg) <- "rElo"
 # lines(x_as, probs[,5], type="l", lwd=3, col=rainbow(4)[3])
 # legend("topright", legend=c("avg400", "Grs", "rElo"), col=rainbow(4), lty=c(1,1,1), lwd=3)
 # }
-

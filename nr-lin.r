@@ -9,9 +9,9 @@
 cat('\n', paste("----------------------------- nr-lin.r", sep=", "), '\n')
 
 slope <- 4                                          # inverse of slope
-celo <-  200                                        # Elo class interval
-Pr  <- function(DP) {return(DP/slope + 0.5)}        # lineair with slope 1/4
-dPr <- function(DP) {return( (!is.na(DP)) / slope) }# derivative
+celo  <- 200                                        # Elo class interval
+Pr    <- function(DP) { DP / slope + 0.5 }          # linear with slope 1/4
+dPr   <- function(DP) { (!is.na(DP)) / slope }      # derivative
 
 # Conjugate gradients, solve linear equation  A.x = b -----------------
 # A must be Positive Definite or
@@ -79,6 +79,7 @@ conjgrad  <- function(A, Adiag, b, Eps) {
 
 #----------------------------------------------------
 # choose largest indivisible profile domain
+# rrtg is column vector
 # set rrtg of excluded players to NA, otherwise 0
 # calculate mask_SCC (n x r), NA for excluded players
 # recalculate wins, losses, draws within main domain
@@ -88,16 +89,15 @@ conjgrad  <- function(A, Adiag, b, Eps) {
 
 # column vector of relative ratings
 most_common_SCC <- which.max(table(SCC$membership))
-rrtg <- matrix(ifelse(SCC$membership %in% most_common_SCC, 0, 0)) # base is 0, no SCCs, <<<<<<<<<<<<<<<<<<<<<<<
-diff <- rrtg - rrtg                                 # set to zero
+rrtg <- as.matrix(ifelse(SCC$membership %in% most_common_SCC, 0, 0)) # base is 0, no SCCs, <<<<<<<<<<<<<<<<<<<<<<<
 mask_SCC  <- rrtg[as.vector(opponents)]             # set excluded opponents to NA
-mask_SCC  <- mask_SCC + rrtg[,1]                    # set opponents of excluded players to NA
+mask_SCC  <- mask_SCC + as.vector(rrtg)             # set opponents of excluded players to NA
 dim(mask_SCC) <- dim(opponents)                     # restore matrix (n x r)
 
 W <- matrix(rowSums(results + mask_SCC, na.rm=TRUE)) # actual score points (above/below average)
 stopifnot(sum(W) < .Machine$double)                 # zero sum
 
-iterations <- rbind(rrtg, 0, 0, 0)                  # store iterations, one column for each iteration step
+iterations <- cbind(c(rrtg, 0, 0, 0))               # store iterations, one column for each iteration step
 convergence <- c(NA)                                # concatenate missing value ( n x it. step)
 
 cgcum <- 0                                          # count cg iterations cumulatively
@@ -115,10 +115,10 @@ for (it in seq_len(maxit)){
 
   rtopp     = rrtg[as.vector(opponents)]            # rating opponents
   dim(rtopp) = dim(opponents)                       # restore matrix (n x r)
-  dpopp <- (rrtg[,1] - rtopp)                       # rating difference (dp) with opponents
+  dpopp <- (as.vector(rrtg) - rtopp)                # rating difference (dp) with opponents
   dpopp <- dpopp + mask_SCC                         # remove excluded opponents
 
-  Wem <- (Pr(dpopp / celo) - 0.5)                    # expected score above average(n x r)
+  Wem <- (Pr(dpopp / celo) - 0.5)                   # expected score above average(n x r)
   stopifnot(sum(Wem, na.rm=TRUE) < .Machine$double.eps * length(Wem)) # sum of rating differences
   We <- matrix(rowSums(Wem, na.rm=TRUE)) * Par      # expected score (n)
 
@@ -140,10 +140,8 @@ for (it in seq_len(maxit)){
   t <- rrtg - (nr_step * celo)
 #---------------------------------------------------------------------
     
-  tx = mean(t, na.rm = TRUE)                        # average rating, ignore missing values
-  t <- t - tx                                       # reset average rating to zero
-                                                    
-  iterations  <- cbind(iterations, rbind(t, kappa, cg_th, cgcum)) # column bind, append next iteration
+  t  <- as.matrix(scale(t, center = TRUE, scale = FALSE)[, 1]) # Reset gemiddelde naar 0 via scale()
+  iterations  <- cbind(iterations, cbind(c(rrtg=t, kappa=kappa, cg_th=cg_th, cgcum=cgcum))) # append next iteration.
   diff <- t - rrtg                                  # change in iteration
   dd <- sum(diff*diff, na.rm=TRUE)                  # dot product diff.diff
   convergence <- cbind(convergence, dd)             # append to convergence
@@ -179,8 +177,7 @@ cat(sprintf("XN Residual   = %5.2g\n" , max(abs(res), na.rm=TRUE) )) # max norm
 cat("\n")                                                                                           
 }
 
-NRend - NRstart                                     # CPU NR iteration
+print(NRend - NRstart)                                     # CPU NR iteration
 
-uz   <- exp(rrtg / 400 * log(10))                   # Spielstärken, Zermelo, p. 451
-uz[] <- uz / sum(uz)                                # genormeerd op som = 1
-
+uz  <- exp(rrtg / 400 * log(10))                    # Spielstärken, Zermelo, p. 451
+uz  <- uz / sum(uz)                                 # genormeerd op som = 1

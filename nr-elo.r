@@ -1,18 +1,20 @@
 # ---------------------------------------------------------------------
 # nr-elo.r
-# calculate relative ratings (x) as roots of We(x) - W
-# root finding with Newton Raphson
-# compute ratings of most frequent SCC
-# re-calibrate ratings such that minimum rating = 1 (Sevilla)
-# http://www.math.wichita.edu/~cma/stat774/ch2
-# (2.6 Newton's method for a system of nonlineair equations)
-# test tolerance
-# L2 sqrt(sum(x.x)), euclidean distance
-# BB,fnsane, L2 / sqrt(n) < tol
-# Pracma, broyden, L2 < tol
+# Compute ratings of most frequent SCC
+# Calculate relative ratings (x) as roots of We(x) - W
+# Root finding with Newton Raphson
+# See:
+# - https://en.wikipedia.org/wiki/Newton%27s_method#Systems_of_equations
+# - Numerical methods in engineering with Python, Juan Kiusalaas,
+#   The Pennsylvania State University, 2005
+#   4.Roots of Equations, 4.6 Systems of Equations
+# Test tolerance:
+# - L2 sqrt(sum(x.x)), euclidean distance
+# - BB,fnsane, L2 / sqrt(n) < tol
+# - Pracma, broyden, L2 < tol
 # ---------------------------------------------------------------------
 
-cat('\n', paste("----------------------------- nr.r", sep=", "), '\n')
+cat('\n', paste("----------------------------- nr-elo.r", sep=", "), '\n')
 
 # Logistic distribution
 celo <- 400/log(10)                                 # Elo constant to convert to Elo domain
@@ -31,7 +33,7 @@ dPr <- function(x) {e <- Pr(x); return(e * (1-e))}  # Derivative
 # Par = max(∀ plusscore - minscore)
 # ------------------------------------------------------
 W_expected <- function(x) {
-  dpopp <- x[,1] - x[as.vector(opponents)];         # difference between own rating, opponent rating
+  dpopp <- as.vector(x) - x[as.vector(opponents)];  # difference between own rating, opponent rating
   dim(dpopp) = dim(opponents)                       # indexed by player, round
 
   Jf     <<- -dPr(dpopp) * Par                      # Jacobian opponents: Jf(x) = δfi/δxk, k != i (global assign)
@@ -55,7 +57,7 @@ cg.solve  <- function(A, Adiag, b, reltol=NULL) {
   # A                                               # matrix
   # Adiag                                           # A[i,i]
   # opponents                                       # sparse matrix representation
-  # reltol =										# relative error tolerance
+  # reltol =										                    # relative error tolerance
 
   if (is.null(reltol)) reltol <- sqrt(.Machine$double.eps)
 
@@ -98,10 +100,10 @@ cg.solve  <- function(A, Adiag, b, reltol=NULL) {
 rrtg <- mask_rtg <- as.matrix(ifelse(SCC$membership %in% largest_SCC, 0, NA)) # base is 0, exclude non largest SCC
 diff <- rrtg
 
-W <- as.matrix(rowSums(results + mask_rtg[as.vector(opponents)] + mask_rtg[,1] , na.rm=TRUE)) # "Copeland" score points (above/below average), within SCC largest.
+W <- as.matrix(rowSums(results + as.vector(mask_rtg) + mask_rtg[as.vector(opponents)] , na.rm=TRUE)) # "Copeland" score points (above/below average), within SCC largest.
 stopifnot(sum(W) < .Machine$double.eps)             # zero sum
 
-iterations <- rbind(rrtg, 0, 0, 0)                  # store iterations, one column for each iteration step
+iterations <- cbind(c(rrtg, 0, 0, 0))               # store iterations, one column for each iteration step
 convergence <- c(NA)                                # concatenate missing value ( n x it. step)
 
 cgcum <- 0                                          # count cg iterations cumulatively
@@ -137,7 +139,7 @@ for (it in seq_len(maxit)){
   stopifnot( abs(mean(rrtg.n, na.rm = TRUE)) < sqrt(.Machine$double.eps)) # average rating is invariant
 #---------------------------------------------------------------------
 
-  iterations  <- cbind(iterations, rbind(rrtg.n, kappa, cg_th, cgcum)) # column bind, append next iteration
+  iterations  <- cbind(iterations, cbind(c(rrtg.n, kappa, cg_th, cgcum))) # column bind, append next iteration
   diff <- rrtg.n - rrtg                             # change in iteration
   L2step <- sqrt(sum(diff*diff, na.rm=TRUE) )       # L2 norm, sqrt(dot product diff.diff)
   convergence <- cbind(convergence, L2step)         # append to convergence
