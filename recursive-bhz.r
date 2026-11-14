@@ -15,34 +15,39 @@
 
 cat('\n', paste("----------------------------- recursive-bhz.r", sep=", "), '\n')
 
-Mmat <- rowSums(!is.na(gfile))                      # matches matrix, number of games
-pctpts = points / (Par * Mmat) - 0.5                # average plus/min points score
-message("pctpts: ", all(abs(pctpts - s / (wins + draws + losses) / Par) < .Machine$double.eps, na.rm=TRUE)) # test pctpt, % plus score
+most_common_SCC <- which.max(table(SCC$membership))
+rbhz <- as.matrix(ifelse(SCC$membership %in% most_common_SCC, 0, NA)) # base is 0, NA = SCCs, <<<<<<<<<<<<<<<<<<<<<<<
+mask_SCC  <- rbhz[as.vector(opponents)]             # Set excluded opponents to NA.
+mask_SCC  <- mask_SCC + as.vector(rbhz)             # Set opponents of excluded players to NA.
+dim(mask_SCC) <- dim(opponents)                     # Restore matrix (n x r).
 
-rbhz <-  matrix(0, nrow(opponents), 1)              # rbhz-rating player
-rbopp <- matrix(0, nrow(opponents), 1)              # average rbhz-ratings opponents, indexed by player
-iterations <- rbhz                                  # store iterations, one column for each iteration step
-convergence <- c(NA)                                # concatenate missing value ( n x it. step)
+oppSCC <- opponents + mask_SCC                      # Opponents maximal SCC.
+resSCC <- results + mask_SCC                        # Results maximal SCC.
+
+Mmat   <- rowSums(!is.na(resSCC))                   # Number of games in max. SCC.
+s     <- matrix(rowSums(resSCC, na.rm = TRUE))   
+rbopp <- matrix(0, nrow(opponents), 1)              # average rbhz-ratings opponents, indexed by player.
+
+iterations <- rbhz                                  # store iterations, one column for each iteration step.
+convergence <- c(NA)                                # concatenate missing value ( n x it. step).
 
 # iterate until rbhz is stable ---------------------
 npls <- nrow(opponents)
-stopifnot(npls > 1)                                 # it needs two to tango
+stopifnot(npls > 1)                                 # it needs two to tango.
 
-maxit <- max(npls * npls, 100L)                     # max number of iterations (guess)
-
-steptol <- 1e-4 / 3                                 # change in diff after <<<e-four>>> decimals                                              # change in diff after <<<three>>> decimals
+maxit <- max(npls * log(npls), 100L)                # max number of iterations (guess).
+steptol <- 1e-4 / 3                                 # change in diff after <<<e-four>>> decimals
+                                                    # change in diff after <<<three>>> decimals
 it <- 0;
 
 system.time(
 while ((it <- it+1) <= maxit) {                     # a loop might occur when bipartite
-  rboppm = rbhz[as.vector(opponents)]               # rbhz of opponents  (n x r) for debugging
-  dim(rboppm) = dim(opponents)                      # restore matrix
+
+  rboppm <- matrix(rbhz[as.vector(oppSCC)], nrow = npls) # rbhz of opponents  (n x r.
   rbopp = rowSums(rboppm, na.rm=TRUE) / Mmat        # average rbhz of opponents, indexed by player, ignore missing values
   
-# rb.new <- rbopp  + pctpts                         # Next step in Banach fixpoint iteration. Gonzalex Diaz 2014, p.6 rbhz / Par == lsq
   rb.new <- rbopp  + s / Mmat                       # Next step in Banach fixpoint iteration. Gonzalex Diaz 2014, p.6 rbhz       == lsq
-  rb.new <- rb.new - mean(rb.new, na.rm = TRUE)     # reset sum to zero, ignore missing values
-  
+
   try( iterations  <- cbind(iterations, rb.new), silent=TRUE) # column bind, append next iteration
   diff <- rb.new - rbhz                             # change in iteration
   xn_diff <- max(abs(diff), na.rm=TRUE)             # max norm
@@ -50,7 +55,6 @@ while ((it <- it+1) <= maxit) {                     # a loop might occur when bi
 
   rbhz <- rb.new                                    # next rbhz approximation
   if ( all(rbhz == 0L, na.rm = TRUE) ) break        # All zeros, this is going to repeat itself 
-
 
   if (xn_diff < steptol) break                      # change in rating below limit
   if (it %% 100 == 0) cat(sprintf("Progress = %d, sd(diff) = %7.4g\n", it, xn_diff))

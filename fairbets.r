@@ -28,21 +28,23 @@ cat("\n",ifelse(exists("pefbev"),"Perron Frobenius eigenvector","Fairbets") ,"\n
 
 # select most common SCC / league
 largest_SCC <- which.max(table(SCC$membership))
-# column vector of relative ratings
-fb <- matrix(ifelse(SCC$membership %in% largest_SCC, 0, 0)) # set non-SCC players to NA (or zero when one group) <<<<<<
+fb <- as.matrix(ifelse(SCC$membership %in% largest_SCC, 0, NA)) # set non-SCC players to NA (or zero when one group) <<<<<<
 fb[apply(is.na(opponents), 1, all)] <- NA           # remove isolates, no opponent <<<<<<
 
-mask_SCC  <- fb[c(opponents)]                       # set excluded opponents to NA
-mask_SCC  <- mask_SCC + fb[,1]                      # set opponents of excluded players to NA
-dim(mask_SCC) <- dim(opponents)                     # restore matrix (n x r)
+mask_SCC  <- fb[as.vector(opponents)]               # Set excluded opponents to NA.
+mask_SCC  <- mask_SCC + as.vector(fb)               # Set opponents of excluded players to NA.
+dim(mask_SCC) <- dim(opponents)                     # Restore matrix (n x r).
 fb <- fb + 1
 
+oppSCC <- opponents + mask_SCC                      # Opponents maximal SCC.
+gfSCC  <- gfile + mask_SCC                          # Results maximal SCC.
+
 # Fairbets ranking is invariant under adding win and loss points equally to a player
-pts_ag <- rowSums(t.sparse(gfile + mask_SCC, opponents), na.rm=TRUE) + 1 # points against, sum of col(gfile), incl game against self
+pts_ag <- rowSums(t.sparse(gfSCC, oppSCC), na.rm=TRUE) + 1 # points against, sum of col(gfile), incl game against self
 
 if (exists("pefbev") && pefbev == 1) pts_ag[] <- 1  # Eigen vector 
                        
-fbfile <- (gfile + mask_SCC) / pts_ag               # A / losses, losses = sum col(A), indexed by player(n x r) 
+fbMatSCC <- (gfSCC) / pts_ag                        # A / losses, losses = sum col(A), indexed by player(n x r) 
 
 iterations <- fb                                    # store iterations, one column for each iteration step
 convergence <- c(NA)                                # concatenate missing value ( n x it. steps)
@@ -58,21 +60,18 @@ it <- 0L
 stime <- system.time( 
 while ((it <- it+1L) < maxit) {
 
-  fbm = fb[c(opponents)]                            # rating of opponents  (n x r) for debugging
-  dim(fbm) = dim(opponents)                         # restore matrix
-
   # ((Gf + I)/L).fb, sparse matrix/vector multiplication
   # add I for speed up, avoid division by zero  
-  fbn <- rowSums(fbfile * fb[as.vector(opponents)], na.rm = TRUE) + (1/pts_ag)*fb # matrix multiplication + point by self
+  fbn <- rowSums(fbMatSCC * fb[as.vector(oppSCC)], na.rm = TRUE) + (1/pts_ag)*fb # matrix multiplication + point by self
   fbn <- fbn / sum(fbn, na.rm=TRUE)                 # normalize by sum
   
-  if (min(fbn == 0, na.rm = TRUE) == 1) break       # All zeros, this is going to repeat itself
-  
+  if (all(fbn == 0, na.rm = TRUE)) break            # All zeros, this is going to repeat itself
+
   iterations  <- cbind(iterations, fbn)             # column bind, append next iteration
   diff <- fbn - fb                                  # change in iteration
   sd_diff <- sd(diff, na.rm=TRUE)
 
-  convergence <- cbind(convergence, sd_diff)		# append to convergence
+  convergence <- cbind(convergence, sd_diff)        # append to convergence
 
   fb <- fbn                                         # next approximation
  
